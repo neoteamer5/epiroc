@@ -1,0 +1,48 @@
+
+
+
+
+@startuml
+
+title Cooling System Architecture
+
+actor Operator
+
+node "QNX Murphy PV450" {
+    component "Cooling HMI" as HMI
+    component "J1939 Service" as J1939_HMI
+}
+
+node "Linux Manager" as LINUX {
+    component "State Machine" as SM
+    component "PID Controller" as PID
+    component "J1939 Service" as J1939_LINUX
+}
+
+node "IFM CR0403 PLC" as PLC {
+    component "J1939 Service" as J1939_PLC
+    component "I/O Manager" as IO
+}
+
+database "Sensors" as Sensors
+database "Actuators" as Actuators
+
+Operator --> HMI
+
+J1939_HMI <--> J1939_LINUX : Request and Reply
+
+J1939_LINUX --> J1939_PLC : Commands
+J1939_LINUX <-- J1939_PLC : Status
+IO <--> J1939_PLC
+
+IO <-- Sensors : Status Signals
+IO --> Actuators : Control Signals
+
+
+
+J1939_PLC --> J1939_HMI : Sensors Status
+
+SM --> J1939_LINUX
+PID --> J1939_LINUX
+
+@enduml

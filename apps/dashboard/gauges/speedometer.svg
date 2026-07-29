@@ -1,0 +1,40 @@
+<svg width="300" height="300" viewBox="0 0 300 300"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Outer circle -->
+  <circle cx="150" cy="150" r="140" stroke="black" stroke-width="6" fill="#111"/>
+
+  <!-- Tick marks -->
+  <g stroke="white" stroke-width="4">
+    <!-- 0 to 200 km/h, every 20 -->
+    <!-- 180-degree arc from 180° to 0° -->
+    <!-- Generate ticks manually -->
+    <line x1="150" y1="20" x2="150" y2="40"/>
+    <line x1="210" y1="40" x2="200" y2="60"/>
+    <line x1="255" y1="85" x2="235" y2="100"/>
+    <line x1="280" y1="150" x2="260" y2="150"/>
+    <line x1="255" y1="215" x2="235" y2="200"/>
+    <line x1="210" y1="260" x2="200" y2="240"/>
+    <line x1="150" y1="280" x2="150" y2="260"/>
+    <line x1="90" y1="260" x2="100" y2="240"/>
+    <line x1="45" y1="215" x2="65" y2="200"/>
+    <line x1="20" y1="150" x2="40" y2="150"/>
+  </g>
+
+  <!-- Numbers -->
+  <g fill="white" font-size="22" font-family="Arial" text-anchor="middle">
+    <text x="150" y="70">0</text>
+    <text x="215" y="85">20</text>
+    <text x="255" y="135">40</text>
+    <text x="255" y="185">60</text>
+    <text x="215" y="235">80</text>
+    <text x="150" y="255">100</text>
+    <text x="85" y="235">120</text>
+    <text x="45" y="185">140</text>
+    <text x="45" y="135">160</text>
+    <text x="85" y="85">180</text>
+  </g>
+
+  <!-- Needle pivot -->
+  <circle cx="150" cy="150" r="10" fill="red"/>
+</svg>
