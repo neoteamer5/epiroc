@@ -10,9 +10,10 @@
 !*.h
 !*.py
 
-# Allow text files
+# Allow other files
 !*.txt
 !*.puml
 !*.md
 !*.svg
 !*.sh
+!*.png
