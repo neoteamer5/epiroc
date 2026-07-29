@@ -1,15 +1,28 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PySide6.QtSvgWidgets import QSvgWidget
+from PySide6.QtWidgets import QLabel
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtGui import QPainter
+from PySide6.QtCore import QSize
+from PySide6.QtCore import Qt
 
-class WarningWidget(QWidget):
-    def __init__(self, svg_path):
+class WarningWidget(QLabel):
+    def __init__(self, svg_path="gauges/warning.svg"):
         super().__init__()
-        layout = QVBoxLayout()
-        self.svg = QSvgWidget(svg_path)
-        self.label = QLabel("Warnings: None")
-        layout.addWidget(self.svg)
-        layout.addWidget(self.label)
-        self.setLayout(layout)
+        self.renderer = QSvgRenderer(svg_path)
+        self.setFixedSize(QSize(80, 80))   # small icon
+        self.active = False
 
     def set_state(self, active):
-        self.label.setText("Warnings: ACTIVE" if active else "Warnings: None")
+        self.active = active
+        self.update()   # triggers paintEvent
+
+    def paintEvent(self, event):
+            painter = QPainter(self)
+
+            # Draw SVG scaled to widget size
+            self.renderer.render(painter)
+
+            # Draw overlay text
+            if self.active:
+                painter.drawText(self.rect(), Qt.AlignCenter, "ACTIVE")
+            else:
+                painter.drawText(self.rect(), Qt.AlignCenter, "OK")

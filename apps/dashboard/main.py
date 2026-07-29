@@ -7,8 +7,10 @@ from widgets.warning_widget import WarningWidget
 class Dashboard(QWidget):
     values_signal = Signal(int, int, int, int, bool)
 
-    def __init__(self):
+    def __init__(self, use_demo):
         super().__init__()
+        self.use_demo = use_demo
+
 
         layout = QGridLayout(self)
 
@@ -33,7 +35,7 @@ class Dashboard(QWidget):
         self.values_signal.connect(self.update_values)
 
         # start demo CAN reader
-        self.reader = CANReader(self.values_signal)
+        self.reader = CANReader(self.values_signal, self.use_demo)
 
         self.resize(900, 600)
 
@@ -45,7 +47,11 @@ class Dashboard(QWidget):
         self.warning.set_state(warn)
 
 if __name__ == "__main__":
+    mode = input("Use demo data? (y/n): ").strip().lower()
+    use_demo = (mode == "y")
+
     app = QApplication([])
-    dash = Dashboard()
+    dash = Dashboard(use_demo)
     dash.show()
     app.exec()
+
