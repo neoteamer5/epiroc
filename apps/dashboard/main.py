@@ -11,10 +11,11 @@ class Dashboard(QWidget):
         self.setWindowTitle("J1939 Dashboard")
         layout = QGridLayout()
 
-        self.speed = GaugeWidget("gauges/speedometer.svg", "Speed", 0, 200)
-        self.rpm = GaugeWidget("gauges/tachometer.svg", "RPM", 0, 4000)
-        self.fuel = GaugeWidget("gauges/fuel.svg", "Fuel", 0, 100)
-        self.coolant = GaugeWidget("gauges/coolant.svg", "Coolant", 0, 150)
+        self.speed = GaugeWidget("Speed", 0, 200, -130, 130)
+        self.rpm   = GaugeWidget("RPM",   0, 4000, -130, 130)
+        self.fuel  = GaugeWidget("Fuel",  0, 100, -130, 130)
+        self.coolant = GaugeWidget("Coolant", 0, 150, -130, 130)
+
         self.warning = WarningWidget("gauges/warning.svg")
 
         layout.addWidget(self.speed, 0, 0)

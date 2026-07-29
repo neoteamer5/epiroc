@@ -1,21 +1,28 @@
-import can
-from threading import Thread
 import time
+import threading
+import math
+from PySide6.QtCore import QMetaObject, Qt
 
 class CANReader:
     def __init__(self, callback):
         self.callback = callback
-        self.bus = can.interface.Bus("vcan0", bustype="socketcan")
-        Thread(target=self.loop, daemon=True).start()
+        threading.Thread(target=self.demo_loop, daemon=True).start()
 
-    def loop(self):
+    def demo_loop(self):
+        t = 0
         while True:
-            msg = self.bus.recv(timeout=0.01)
-            if msg:
-                spd = msg.data[0]
-                rpm = msg.data[1] * 32
-                fuel = msg.data[2]
-                temp = msg.data[3]
-                warn = msg.data[4] > 0
-                self.callback(spd, rpm, fuel, temp, warn)
-            time.sleep(0.01)
+            spd  = int((math.sin(t) + 1) * 100)
+            rpm  = int((math.sin(t + 1) + 1) * 2000)
+            fuel = int((math.sin(t + 2) + 1) * 50)
+            temp = int((math.sin(t + 3) + 1) * 75)
+            warn = (math.sin(t + 4) > 0.7)
+
+            QMetaObject.invokeMethod(
+                self.callback,
+                "__call__",
+                Qt.QueuedConnection,
+                spd, rpm, fuel, temp, warn
+            )
+
+            t += 0.05
+            time.sleep(0.05)
