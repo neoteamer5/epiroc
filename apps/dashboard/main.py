@@ -1,32 +1,41 @@
-import sys
-from PySide6.QtWidgets import QApplication, QWidget, QGridLayout
-from can_reader import CANReader
+from PySide6.QtWidgets import QWidget, QApplication, QGridLayout
+from PySide6.QtCore import Signal
 from widgets.gauge_widget import GaugeWidget
+from can_reader import CANReader
 from widgets.warning_widget import WarningWidget
 
 class Dashboard(QWidget):
+    values_signal = Signal(int, int, int, int, bool)
+
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("J1939 Dashboard")
-        layout = QGridLayout()
+        layout = QGridLayout(self)
 
-        self.speed = GaugeWidget("Speed", 0, 200, -130, 130)
-        self.rpm   = GaugeWidget("RPM",   0, 4000, -130, 130)
-        self.fuel  = GaugeWidget("Fuel",  0, 100, -130, 130)
+        # gauges
+        self.speed   = GaugeWidget("Speed",   0, 200, -130, 130)
+        self.rpm     = GaugeWidget("RPM",     0, 4000, -130, 130)
+        self.fuel    = GaugeWidget("Fuel",    0, 100, -130, 130)
         self.coolant = GaugeWidget("Coolant", 0, 150, -130, 130)
 
+        # warning
         self.warning = WarningWidget("gauges/warning.svg")
 
-        layout.addWidget(self.speed, 0, 0)
-        layout.addWidget(self.rpm, 0, 1)
-        layout.addWidget(self.fuel, 1, 0)
+
+        # layout
+        layout.addWidget(self.speed,   0, 0)
+        layout.addWidget(self.rpm,     0, 1)
+        layout.addWidget(self.fuel,    1, 0)
         layout.addWidget(self.coolant, 1, 1)
         layout.addWidget(self.warning, 2, 0, 1, 2)
 
-        self.setLayout(layout)
+        # connect signal
+        self.values_signal.connect(self.update_values)
 
-        self.can = CANReader(self.update_values)
+        # start demo CAN reader
+        self.reader = CANReader(self.values_signal)
+
+        self.resize(900, 600)
 
     def update_values(self, spd, rpm, fuel, temp, warn):
         self.speed.set_value(spd)
@@ -35,7 +44,8 @@ class Dashboard(QWidget):
         self.coolant.set_value(temp)
         self.warning.set_state(warn)
 
-app = QApplication(sys.argv)
-dash = Dashboard()
-dash.show()
-app.exec()
+if __name__ == "__main__":
+    app = QApplication([])
+    dash = Dashboard()
+    dash.show()
+    app.exec()
