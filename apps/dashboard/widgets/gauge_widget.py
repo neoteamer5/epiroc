@@ -66,3 +66,13 @@ class GaugeWidget(QWidget):
         # Draw needle
         painter.setPen(QPen(Qt.red, 4))
         painter.drawLine(int(cx), int(cy), int(x2), int(y2))
+
+        # Draw gauge title in center of circle (bold + gray)
+        painter.setPen(QPen(Qt.gray, 2))
+
+        font = painter.font()
+        font.setBold(True)
+        font.setPointSize(12)
+        painter.setFont(font)
+
+        painter.drawText(rect, Qt.AlignCenter, self.title)
