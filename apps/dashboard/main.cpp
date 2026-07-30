@@ -51,12 +51,6 @@ int sock;
 std::mutex inMutex;
 std::mutex outMutex;
 
-std::atomic<bool> running{true};
-
-void sigint_handler(int) {
-    running.store(false);
-}
-
 // -------------------- PGN Extraction --------------------
 
 uint32_t extract_pgn(const struct can_frame& frame) {
@@ -138,7 +132,7 @@ void handle_unknown(uint32_t pgn) {
 // -------------------- Process Thread --------------------
 
 void process_thread() {
-    while (running.load()) {
+    while (true) {
 
         // Drain incoming queue
         {
@@ -170,7 +164,7 @@ void process_thread() {
 void reader_thread() {
     struct can_frame frame{};
 
-    while (running.load()) {
+    while (true) {
         int nbytes = read(sock, &frame, sizeof(frame));
         if (nbytes < 0) continue;
 
@@ -188,7 +182,7 @@ void reader_thread() {
 void writer_thread() {
 
 
-    while (running.load()) {
+    while (true) {
 
         Command cmd{};
         bool has_cmd = false;
@@ -245,10 +239,8 @@ void init_socket()
 // -------------------- Main --------------------
 
 int main() {
-    signal(SIGINT, sigint_handler);   // Ctrl‑C stops all threads
-
     init_socket();
-
+    
     std::thread t_reader(reader_thread);
     std::thread t_process(process_thread);
     std::thread t_writer(writer_thread);
@@ -258,6 +250,6 @@ int main() {
     t_writer.join();
 
     close(sock);
-    
+
     return 0;
 }
