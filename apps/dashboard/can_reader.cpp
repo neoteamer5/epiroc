@@ -8,6 +8,9 @@
 #include <thread>
 #include <cmath>
 #include <chrono>
+#ifdef HAVE_J1939
+#include <linux/can/j1939.h>
+#endif
 
 #include <iostream>
 
@@ -52,7 +55,11 @@ void demo_loop()
 
 void init_socketcan()
 {
+#ifdef HAVE_J1939
+    sockfd = socket(PF_J1939, SOCK_DGRAM, CAN_J1939);
+#else
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+#endif
 
     struct ifreq ifr {};
     std::strcpy(ifr.ifr_name, "vcan0");
@@ -69,6 +76,11 @@ void read_loop()
 {
     struct can_frame frame {};
 
+    /**
+     * I have already known J1939 is not support from my Linux kernal,
+     * and I don't have time to prepare a yacto build to be the dev environment
+     * so the code here is raw SocketCAN format.
+     */
     while (true) {
         int nbytes = read(sockfd, &frame, sizeof(frame));
         if (nbytes < 0) continue;
