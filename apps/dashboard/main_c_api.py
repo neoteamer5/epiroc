@@ -17,8 +17,18 @@ class CANData(ctypes.Structure):
         ("temp", ctypes.c_int),
         ("warn", ctypes.c_int),
     ]
+lib.start_can_reader_real.argtypes = []
+lib.start_can_reader_real.restype = None
 
-lib.start_can_reader_real()
+lib.start_can_reader_demo.argtypes = []
+lib.start_can_reader_demo.restype = None
+
+lib.get_can_data.argtypes = [ctypes.POINTER(CANData)]
+lib.get_can_data.restype = ctypes.c_int
+
+# reader_real not work as expected yet.
+#lib.start_can_reader_real()
+lib.start_can_reader_demo()
 
 
 class Dashboard(QWidget):
