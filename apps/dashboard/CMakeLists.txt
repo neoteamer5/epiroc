@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Build the library
 add_library(can_reader
-    can_reader.cpp
+    SHARED
+        can_reader.cpp
+        can_reader_c_api.cpp
+        CANReader.cpp
 
 )
 
