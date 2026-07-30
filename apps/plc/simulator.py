@@ -16,7 +16,8 @@ while True:
     rpm   = int((math.sin(t+1) + 1) * 2000)   # 0–4000
     fuel  = int((math.sin(t+2) + 1) * 50)     # 0–100
     temp  = int((math.sin(t+3) + 1) * 75)     # 0–150
-    warn  = (math.sin(t+4) > 0.7)
+    
+    warn = temp > 120
 
     # PGN 65266 – Speed
     send(0xFEF2, speed.to_bytes(2, 'little') + b'\xFF'*6)

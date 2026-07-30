@@ -31,6 +31,6 @@ class WarningWidget(QLabel):
         text_rect = QRect(0, int(self.height() * 0.6), self.width(), int(self.height() * 0.4))
 
         if self.active:
-            painter.drawText(text_rect, Qt.AlignCenter, "WARNING ACTIVE!")
+            painter.drawText(text_rect, Qt.AlignCenter, "Temp > 120 ")
         else:
-            painter.drawText(text_rect, Qt.AlignCenter, "OK. No warning.")
+            painter.drawText(text_rect, Qt.AlignCenter, "Temp OK.")

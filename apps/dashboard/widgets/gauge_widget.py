@@ -13,30 +13,25 @@ class GaugeWidget(QWidget):
         self.end_angle = end_angle          # e.g., +130 degrees
         self.value = 0
 
-        # Title label
-        self.title_label = QLabel(title)
-        self.title_label.setAlignment(Qt.AlignCenter)
-
         # Numeric value label
-        self.value_label = QLabel("0")
-        self.value_label.setAlignment(Qt.AlignCenter)
+        #self.value_label = QLabel("0")
+        #self.value_label.setAlignment(Qt.AlignCenter)
 
         # Layout: title → gauge → value
         layout = QVBoxLayout(self)
-        layout.addWidget(self.title_label)
         layout.addStretch()
-        layout.addWidget(self.value_label)
+        #layout.addWidget(self.value_label)
 
     def set_value(self, val):
         self.value = val
-        self.value_label.setText(str(val))
+        #self.value_label.setText(str(val))
         self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Make gauge circle always perfect
+        # Perfect circle
         size = min(self.width(), self.height() - 60)
         rect = QRectF(
             (self.width() - size) / 2,
@@ -45,7 +40,7 @@ class GaugeWidget(QWidget):
             size
         )
 
-        # Draw gauge arc background
+        # Draw gauge arc
         painter.setPen(QPen(Qt.gray, 8))
         painter.drawArc(rect, self.start_angle * 16, (self.end_angle - self.start_angle) * 16)
 
@@ -76,3 +71,19 @@ class GaugeWidget(QWidget):
         painter.setFont(font)
 
         painter.drawText(rect, Qt.AlignCenter, self.title)
+
+        # Draw numeric value BELOW the title, but ABOVE the bottom of the circle
+        value_rect = QRectF(
+            rect.x(),
+            rect.y() + size * 0.25,   # 55% down from top of circle
+            rect.width(),
+            rect.height()
+        )
+
+        # GREEN value text
+        painter.setPen(QPen(Qt.darkGreen, 2))
+        font.setBold(False)
+        font.setPointSize(14)
+        painter.setFont(font)
+        painter.drawText(value_rect, Qt.AlignCenter, str(self.value))
+
