@@ -75,8 +75,7 @@ CANReader::~CANReader() {
 
 void CANReader::demo_loop() {
     std::cerr << ">>> demo_loop ENTERED\n";
-    while (q
-    ) {
+    while (running) {
         data.spd  = std::rand() % 120;
         data.rpm  = std::rand() % 3500;
         data.fuel = std::rand() % 100;

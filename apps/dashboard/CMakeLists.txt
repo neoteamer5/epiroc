@@ -22,9 +22,17 @@ target_include_directories(can_reader
 add_executable(can_reader_demo
     main.cpp
 )
-
-# 4. Link the library + rt
 target_link_libraries(can_reader_demo
     can_reader
     rt
 )
+
+# 4. for test
+add_executable(test_c_api
+    test_c_api.cpp
+)
+target_link_libraries(test_c_api
+    can_reader
+    rt
+)
+
