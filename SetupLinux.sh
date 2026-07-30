@@ -7,6 +7,7 @@ sudo apt update
 echo "Installing SocketCAN tools and dependencies..."
 sudo apt install -y \
     build-essential \
+    cmake \
     git \
     pkg-config \
     libtool \

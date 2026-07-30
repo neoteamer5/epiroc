@@ -1,6 +1,8 @@
 # Ignore everything
 *
 !*/
+build/
+
 !.gitignore
 
 # Allow C++ source files
