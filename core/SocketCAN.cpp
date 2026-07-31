@@ -32,7 +32,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <cstring>
-
+//#include <iostream>
 int sock = -1;
 
 void init_socket()
@@ -52,4 +52,6 @@ void init_socket()
     addr.can_ifindex = ifr.ifr_ifindex;
 
     bind(sock, (struct sockaddr*)&addr, sizeof(addr));
+
+    //std::cout << "sock=" << sock << " created..." << std::endl;
 }

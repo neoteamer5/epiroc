@@ -134,7 +134,8 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
 {
     struct can_frame rx;
     std::memset(&rx, 0, sizeof(rx));
-
+    
+    //std::cout << "start reading sock=" << sock << "..." << std::endl;
     int nbytes = read(sock, &rx, sizeof(rx));
     if (nbytes <= 0)
         return false;
