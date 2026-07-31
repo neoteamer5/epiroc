@@ -32,10 +32,10 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <cstring>
-//#include <iostream>
+#include <fcntl.h>
 int sock = -1;
 
-void init_socket()
+void init_socket(bool noBlock)
 {
     sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 
@@ -53,5 +53,9 @@ void init_socket()
 
     bind(sock, (struct sockaddr*)&addr, sizeof(addr));
 
-    //std::cout << "sock=" << sock << " created..." << std::endl;
+    if (noBlock)
+    {
+        int flags = fcntl(sock, F_GETFL, 0);
+        fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    }
 }

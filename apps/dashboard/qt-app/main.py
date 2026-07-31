@@ -3,6 +3,7 @@ from PySide6.QtCore import Signal
 from widgets.gauge_widget import GaugeWidget
 from can_reader import CANReader
 from widgets.warning_widget import WarningWidget
+import sys
 
 class Dashboard(QWidget):
     values_signal = Signal(int, int, int, int, bool)
@@ -47,11 +48,23 @@ class Dashboard(QWidget):
         self.warning.set_state(warn)
 
 if __name__ == "__main__":
-    mode = input("Use demo data? (y/n): ").strip().lower()
-    use_demo = (mode == "y")
+    # Default: demo = False
+    use_demo = False
+
+    # Command-line argument parsing
+    # Examples:
+    #   python3 main.py demo
+    #   python3 main.py PLC
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].strip().lower()
+        if arg == "demo":
+            use_demo = True
+        elif arg == "plc":
+            use_demo = False
+        else:
+            print(f"Unknown mode '{arg}', expected 'demo' or 'PLC'.")
 
     app = QApplication([])
     dash = Dashboard(use_demo)
     dash.show()
     app.exec()
-

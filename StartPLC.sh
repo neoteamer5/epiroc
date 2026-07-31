@@ -14,4 +14,4 @@
 # ---------------------------------------------------------------------------
 
 echo "Starting PLC simulator..."
-apps/build/plc/plc
+./build/bin/plc

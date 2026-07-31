@@ -289,7 +289,7 @@ void EnableKeyboardNonBlocking()
  */
 int main()
 {
-    init_socket();
+    init_socket(true);
 
     auto last_test = std::chrono::steady_clock::now();
 
