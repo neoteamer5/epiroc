@@ -1,16 +1,15 @@
-#include "CanMessages.h"
-
 /**
  * @file CanMessages.cpp
  * @brief Implements PGN decoding utilities for CAN/J1939 messages.
  *
- * This file contains the DecodePgn() function which maps raw PGN values
- * to the strongly typed PgnType enum. It ensures consistent PGN handling
+ * This file contains the CanMessages::DecodePgn() function which maps raw PGN
+ * values to the strongly typed PgnType enum. It ensures consistent PGN handling
  * across all modules that process incoming CAN frames.
- *
  */
 
-PgnType DecodePgn(unsigned int pgn)
+#include "CanMessages.hpp"
+
+CanMessages::PgnType CanMessages::DecodePgn(unsigned int pgn)
 {
     switch (pgn)
     {
