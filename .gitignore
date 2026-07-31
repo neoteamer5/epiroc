@@ -19,3 +19,4 @@ build/
 !*.svg
 !*.sh
 !*.png
+!*.jpeg
