@@ -1,8 +1,9 @@
-On you Linux:
+On your Linux:
 git clone https://github.com/neoteamer5/epiroc
 
+Step 1:
 cd epiroc
-chmod +x SetupLinux.sh
 ./SetupLinux.sh
 
-source ~/j1939dash/bin/activate && cd apps/dashboard && python3 main.py 
+Step 2 (open a new linux terminal):
+./StartPLC.sh
