@@ -16,7 +16,7 @@
 
 #include <iomanip>
 
-int sockfd;
+#include "SocketCAN.h"
 
 enum PlcState {
     PLC_NORMAL,
@@ -83,7 +83,7 @@ void SendPgn(uint32_t pgn, const uint8_t *data, size_t len)
     frame.can_dlc = len;
 
     std::memcpy(frame.data, data, len);
-    write(sockfd, &frame, sizeof(frame));
+    write(sock, &frame, sizeof(frame));
 }
 
 /**
@@ -135,7 +135,7 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
     struct can_frame rx;
     std::memset(&rx, 0, sizeof(rx));
 
-    int nbytes = read(sockfd, &rx, sizeof(rx));
+    int nbytes = read(sock, &rx, sizeof(rx));
     if (nbytes <= 0)
         return false;
 
@@ -288,22 +288,7 @@ void EnableKeyboardNonBlocking()
  */
 int main()
 {
-    sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
-
-    struct ifreq ifr;
-    std::memset(&ifr, 0, sizeof(ifr));
-    std::strcpy(ifr.ifr_name, "vcan0");
-    ioctl(sockfd, SIOCGIFINDEX, &ifr);
-
-    struct sockaddr_can addr;
-    std::memset(&addr, 0, sizeof(addr));
-    addr.can_family = AF_CAN;
-    addr.can_ifindex = ifr.ifr_ifindex;
-
-    bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+    init_socket();
 
     auto last_test = std::chrono::steady_clock::now();
 
@@ -334,10 +319,10 @@ int main()
             std::chrono::system_clock::now().time_since_epoch()
         ).count();
 
-        int speed = int((std::sin(t) + 1) * 100);
-        int rpm = int((std::sin(t + 1) + 1) * 2000);
-        int fuel = int((std::sin(t + 2) + 1) * 50);
-        int temp = int((std::sin(t + 3) + 1) * 150);
+        int speed = static_cast<int>((std::sin(t) + 1) * 100);
+        int rpm =   static_cast<int>((std::sin(t) + 1) * 2000);
+        int fuel =  static_cast<int>((std::sin(t) + 1) * 50);
+        int temp =  static_cast<int>((std::sin(t) + 1) * 80);
 
         int warn = temp > 120;
 
@@ -356,6 +341,6 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-    close(sockfd);
+    close(sock);
     return 0;
 }

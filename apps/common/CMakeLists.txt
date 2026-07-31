@@ -7,6 +7,7 @@ project(can-messages LANGUAGES CXX)
 
 add_library(can-messages
     CanMessages.cpp
+    SocketCAN.cpp
 )
 
 target_include_directories(can-messages

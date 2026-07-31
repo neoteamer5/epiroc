@@ -43,7 +43,7 @@ target_include_directories(can_reader
 )
 
 target_link_libraries(can_reader
-    PRIVATE
+    PUBLIC
         can-messages
         Threads::Threads
         ${RT_LIB}

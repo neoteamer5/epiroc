@@ -14,6 +14,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "SocketCAN.h"
+
 // -------------------- Message Structures --------------------
 
 struct Message {
@@ -47,7 +49,7 @@ using OutQueue = std::queue<Command>;
 
 InQueue  inQ;
 OutQueue outQ;
-int sock;
+
 std::mutex inMutex;
 std::mutex outMutex;
 
@@ -214,26 +216,6 @@ void writer_thread() {
         usleep(5000);
     }
 
-}
-
-void init_socket()
-{
-    sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-
-    // Prevent receiving our own transmitted frames
-    int recv_own = 0;
-    setsockopt(sock, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS,
-               &recv_own, sizeof(recv_own));
-
-    struct ifreq ifr{};
-    std::strcpy(ifr.ifr_name, "vcan0");
-    ioctl(sock, SIOCGIFINDEX, &ifr);
-
-    struct sockaddr_can addr{};
-    addr.can_family  = AF_CAN;
-    addr.can_ifindex = ifr.ifr_ifindex;
-
-    bind(sock, (struct sockaddr*)&addr, sizeof(addr));
 }
 
 // -------------------- Main --------------------
