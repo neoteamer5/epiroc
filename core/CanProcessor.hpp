@@ -4,6 +4,9 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <functional>
+#include <vector>
+
 #include "CanMessage.hpp"
 #include "CanCommand.hpp"
 
@@ -17,25 +20,20 @@
 ///   - Provide PushMessage() for CanReader
 ///   - Provide PopCommand() for CanWriter
 ///   - Process incoming PGNs and generate CanCommand objects
-///
-/// Used by:
-///   - CanReader (pushes CanMessage)
-///   - CanWriter (pops CanCommand)
+///   - Allow external modules to register message handlers
 class CanProcessor
 {
 public:
+    /// @brief Handler function type.
+    using Handler = std::function<void(const CanMessage &)>;
+
     /// @brief Returns the global singleton instance.
     static CanProcessor & Instance();
 
     /// @brief Pushes an incoming CAN message into the processor's input queue.
-    ///
-    /// @param msg CanMessage object produced by CanReader.
     void PushMessage(const CanMessage & msg);
 
     /// @brief Pops a CanCommand from the output queue if available.
-    ///
-    /// @param cmd Reference to CanCommand object to fill.
-    /// @return true if a command was retrieved, false if queue is empty.
     bool PopCommand(CanCommand & cmd);
 
     /// @brief Launches the processor thread.
@@ -43,6 +41,20 @@ public:
 
     /// @brief Waits for the processor thread to finish.
     void Join();
+
+    /// @brief Registers a handler for the specified PGN.
+    /// @note This function is intended to be called only during initialization.
+    ///       Do not register handlers at runtime. Once initialization is complete,
+    ///       handler lookups can be performed without locking.
+    void RegisterHandler(CanMessage::PgnType pgn, Handler hdlFnc);
+
+    /// @brief Returns the handler registered for the specified PGN.
+    /// @return The registered handler, or nullptr if no handler is registered.
+    ///
+    /// @note Safe to call without locking because the handler table is
+    ///       populated during initialization and remains immutable afterward.
+    Handler GetHandler(CanMessage::PgnType pgn);
+
 
 private:
     CanProcessor();
@@ -53,6 +65,9 @@ private:
 
     std::mutex inMutex;
     std::mutex outMutex;
+
+    std::unordered_map<CanMessage::PgnType, Handler> handlers;
+    std::mutex handlerMutex;
 
     std::thread th;
     std::atomic<bool> running { false };

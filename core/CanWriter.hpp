@@ -4,6 +4,7 @@
 #include <atomic>
 #include <mutex>
 #include "CommCan.hpp"
+#include "CanProcessor.hpp"
 
 /// @brief Sends outgoing CAN commands produced by CanProcessor.
 ///
@@ -13,10 +14,18 @@
 class CanWriter
 {
 public:
-    /// @brief Initializes the reader with a CommCan object.
+    /// @brief Returns the global singleton instance.
+    static CanWriter & Instance();
+
+    /// @brief Initializes the writer with a CommCan object.
     ///
     /// @param comm Pointer to CommCan providing the CAN socket.
     void Init(CommCan * comm);
+
+    /// @brief Connects the writer to the CanProcessor instance.
+    ///
+    /// @param proc Pointer to CanProcessor.
+    void Connect(CanProcessor * proc);
 
     /// @brief Starts the writer thread.
     void Start();
@@ -25,9 +34,12 @@ public:
     void Join();
 
 private:
+    CanWriter();
     void Loop();
 
     int canSock { -1 };
+    CanProcessor * processor { nullptr };
+    
     std::thread th;
     std::atomic<bool> running { false };
 

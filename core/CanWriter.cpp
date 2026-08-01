@@ -14,9 +14,27 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
+CanWriter & CanWriter::Instance()
+{
+    static CanWriter instance;
+    return instance;
+}
+
+CanWriter::CanWriter()
+    : canSock(-1)
+    , processor(nullptr)
+    , running(false)
+{
+}
+
 void CanWriter::Init(CommCan * comm)
 {
     canSock = comm->GetSocket();
+}
+
+void CanWriter::Connect(CanProcessor * proc)
+{
+    processor = proc;
 }
 
 void CanWriter::Start()

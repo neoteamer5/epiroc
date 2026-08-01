@@ -56,6 +56,22 @@ void CanProcessor::Join()
     }
 }
 
+void CanProcessor::RegisterHandler(CanMessage::PgnType pgn, Handler hdlFnc)
+{
+    handlers[pgn] = hdlFnc;
+}
+
+CanProcessor::Handler CanProcessor::GetHandler(CanMessage::PgnType pgn)
+{
+    auto it = handlers.find(pgn);
+    if (it != handlers.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 void CanProcessor::Loop()
 {
     while (running)
@@ -74,6 +90,22 @@ void CanProcessor::Loop()
 
             msg = inQueue.front();
             inQueue.pop();
+            auto handle = GetHandler(msg.pgn);
+            if (handle != nullptr)
+            {
+                handle(msg);
+                /*
+
+                case CanMessage::PgnType::Speed: handle_speed(msg.data); break;   // Speed
+                case CanMessage::PgnType::Rmp: handle_rpm(msg.data); break;     // RPM
+                case CanMessage::PgnType::Fuel: handle_fuel(msg.data); break;    // Fuel
+                case CanMessage::PgnType::Temp: handle_temp(msg.data); break;    // Temperature
+                case CanMessage::PgnType::Lamp: handle_lamp(msg.data); break;    // Lamp / Warning
+                case CanMessage::PgnType::Fault: handle_fault(msg.data); break;   // Fault
+                default:     handle_unknown(m.pgn); break;
+                
+                */            
+            }
         }
 
         // Decode PGN using CanMessage class

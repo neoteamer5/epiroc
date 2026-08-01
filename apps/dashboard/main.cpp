@@ -15,6 +15,11 @@
 #include <unistd.h>
 
 #include "SocketCAN.h"
+#include "CanMessage.hpp"
+#include "CommCan.hpp"
+#include "CanProcessor.hpp"
+#include "CanReader.hpp"
+#include "CanWriter.hpp"
 
 // -------------------- Message Structures --------------------
 
@@ -31,7 +36,7 @@ struct Command {
 // -------------------- Priority Compare (EF00 always first) --------------------
 
 struct Compare {
-    bool operator()(const Message& a, const Message& b) const {
+    bool operator()(const CanMessage& a, const CanMessage& b) const {
         bool a_fault = (a.pgn == 0xEF00);
         bool b_fault = (b.pgn == 0xEF00);
 
@@ -44,8 +49,8 @@ struct Compare {
 
 // -------------------- Queues --------------------
 
-using InQueue  = std::priority_queue<Message, std::vector<Message>, Compare>;
-using OutQueue = std::queue<Command>;
+using InQueue  = std::priority_queue<CanMessage, std::vector<CanMessage>, Compare>;
+using OutQueue = std::queue<CanCommand>;
 
 InQueue  inQ;
 OutQueue outQ;
@@ -71,33 +76,44 @@ uint32_t extract_pgn(const struct can_frame& frame) {
 
 // -------------------- Enqueue Incoming --------------------
 
-void enqueue_in(const Message& m) {
+void enqueue_in(const CanMessage& m) {
     std::lock_guard<std::mutex> lock(inMutex);
     inQ.push(m);
 }
 
 // -------------------- Handlers --------------------
+void handle_speed(const CanMessage& msg)
+{
+    const auto* data = msg.data;
 
-void handle_speed(const uint8_t* data) {
     int speed = data[0] | (data[1] << 8);
     std::cout << "Manager: SPEED=" << speed << "\n";
 }
 
-void handle_rpm(const uint8_t* data) {
+void handle_rpm(const CanMessage& msg)
+{
+    const auto* data = msg.data;
+
     int rpm = data[0] | (data[1] << 8);
     std::cout << "Manager: RPM=" << rpm << "\n";
 }
 
-void handle_fuel(const uint8_t* data) {
+void handle_fuel(const CanMessage& msg)
+{
+    const auto* data = msg.data;
+
     int fuel = data[0] | (data[1] << 8);
     std::cout << "Manager: FUEL=" << fuel << "\n";
 }
 
-void handle_temp(const uint8_t* data) {
+void handle_temp(const CanMessage& msg)
+{
+    const auto* data = msg.data;
+
     int temp = data[0];
     std::cout << "Manager: TEMP=" << temp << "\n";
 
-    Command cmd{};
+    CanCommand cmd{};
     cmd.pump = (temp > 80 ? 70 : 40);
     cmd.fan  = (temp > 80 ? 70 : 40);
 
@@ -105,10 +121,11 @@ void handle_temp(const uint8_t* data) {
     outQ.push(cmd);
 }
 
-void handle_lamp(const uint8_t* /*data*/) {
+void handle_lamp(const CanMessage& /*msg*/)
+{
     std::cout << "Manager: FAULT PGN FECA : lamp\n";
 
-    Command cmd{};
+    CanCommand cmd{};
     cmd.pump = 100;
     cmd.fan  = 100;
 
@@ -116,10 +133,11 @@ void handle_lamp(const uint8_t* /*data*/) {
     outQ.push(cmd);
 }
 
-void handle_fault(const uint8_t* /*data*/) {
+void handle_fault(const CanMessage& /*msg*/)
+{
     std::cout << "Manager: FAULT PGN EF00 : emergency cooling\n";
 
-    Command cmd{};
+    CanCommand cmd{};
     cmd.pump = 100;
     cmd.fan  = 100;
 
@@ -127,39 +145,46 @@ void handle_fault(const uint8_t* /*data*/) {
     outQ.push(cmd);
 }
 
-void handle_unknown(uint32_t pgn) {
-    std::cout << "Manager: UNKNOWN PGN 0x" << std::hex << pgn << std::dec << "\n";
+void handle_unknown(const CanMessage& msg)
+{
+    std::cout << "Manager: UNKNOWN PGN 0x"
+              << std::hex << msg.pgn
+              << std::dec << "\n";
 }
-
 // -------------------- Process Thread --------------------
 
-void process_thread() {
-    while (true) {
+void process_thread()
+{
+    while (true)
+    {
+        CanMessage m;
+        bool hasMessage = false;
 
-        // Drain incoming queue
+        // Pop one message under lock
         {
             std::lock_guard<std::mutex> lock(inMutex);
-
-            while (!inQ.empty()) {
-                Message m = inQ.top();
+            if (!inQ.empty())
+            {
+                m = inQ.top();
                 inQ.pop();
+                hasMessage = true;
+            }
+        }
 
-                switch (m.pgn) {
-                    case 0xFEF2: handle_speed(m.data); break;   // Speed
-                    case 0xF004: handle_rpm(m.data); break;     // RPM
-                    case 0xFEFC: handle_fuel(m.data); break;    // Fuel
-                    case 0xFEEE: handle_temp(m.data); break;    // Temperature
-                    case 0xFECA: handle_lamp(m.data); break;    // Lamp / Warning
-                    case 0xEF00: handle_fault(m.data); break;   // Fault
-                    default:     handle_unknown(m.pgn); break;
-                }
-
+        // Process message outside the lock
+        if (hasMessage)
+        {
+            auto hdl = CanProcessor::Instance().GetHandler(m.pgn);
+            if (hdl)
+            {
+                hdl(m);
             }
         }
 
         usleep(10000); // 10 ms loop
     }
 }
+
 
 // -------------------- Reader Thread --------------------
 
@@ -170,8 +195,8 @@ void reader_thread() {
         int nbytes = read(sock, &frame, sizeof(frame));
         if (nbytes < 0) continue;
 
-        Message m{};
-        m.pgn = extract_pgn(frame);
+        CanMessage m{};
+        m.pgn = CanMessage::DecodePgn(extract_pgn(frame));
         std::memcpy(m.data, frame.data, 8);
 
         enqueue_in(m);
@@ -186,7 +211,7 @@ void writer_thread() {
 
     while (true) {
 
-        Command cmd{};
+        CanCommand cmd{};
         bool has_cmd = false;
 
         {
@@ -221,8 +246,32 @@ void writer_thread() {
 // -------------------- Main --------------------
 
 int main() {
-    init_socket();
+    //init_socket();
+    CommCan::Instance().Init();
+
+    CanReader::Instance().Init(&CommCan::Instance());
+    CanWriter::Instance().Init(&CommCan::Instance());
+
+
+    //CanProcessor::Instance().Init();
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Speed, handle_speed);
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Rpm, handle_rpm);
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Temp, handle_temp);
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Fuel, handle_fuel);
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Fault, handle_fault);
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Lamp, handle_lamp);
     
+    CanReader::Instance().Connect(&CanProcessor::Instance());
+    CanWriter::Instance().Connect(&CanProcessor::Instance());
+
+    CanProcessor::Instance().Start();
+    CanWriter::Instance().Start();
+    CanReader::Instance().Start();
+
+    CanWriter::Instance().Join();
+    CanReader::Instance().Join();
+
+    /*
     std::thread t_reader(reader_thread);
     std::thread t_process(process_thread);
     std::thread t_writer(writer_thread);
@@ -232,6 +281,7 @@ int main() {
     t_writer.join();
 
     close(sock);
+    */
 
     return 0;
 }

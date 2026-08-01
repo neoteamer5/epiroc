@@ -26,16 +26,18 @@ CanMessage::PgnType CanMessage::DecodePgn(uint32_t p)
 }
 
 
-uint32_t CanMessage::extract_pgn(const struct can_frame& frame) {
+CanMessage::PgnType CanMessage::extract_pgn(const struct can_frame& frame) {
     uint32_t id = frame.can_id & CAN_EFF_MASK;
 
     uint8_t dp = (id >> 24) & 0x01;
     uint8_t pf = (id >> 16) & 0xFF;
     uint8_t ps = (id >> 8)  & 0xFF;
 
+    uint32_t rawPgn;
     if (pf < 240) {
-        return (dp << 16) | (pf << 8);
+        rawPgn = (dp << 16) | (pf << 8);
     } else {
-        return (dp << 16) | (pf << 8) | ps;
+        rawPgn =  (dp << 16) | (pf << 8) | ps;
     }
+    return CanMessage::DecodePgn(rawPgn);
 }

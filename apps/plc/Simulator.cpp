@@ -16,7 +16,8 @@
 
 #include <iomanip>
 
-#include "SocketCAN.h"
+#include "CanMessage.hpp"
+#include "CommCan.hpp"
 
 enum PlcState {
     PLC_NORMAL,
@@ -289,7 +290,9 @@ void EnableKeyboardNonBlocking()
  */
 int main()
 {
-    init_socket(true);
+    CommCan::Instance().Init();
+    CommCan::Instance().SetNonBlock();
+    sock =  CommCan::Instance().GetSocket();
 
     auto last_test = std::chrono::steady_clock::now();
 

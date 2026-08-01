@@ -11,7 +11,7 @@ class CanMessage
 {
 public:
     /// @brief Strongly typed PGN identifiers for CAN/J1939 messages.
-    enum class PgnType
+    enum PgnType
     {
         Speed      = 0xFEF2,
         Rpm        = 0xF004,
@@ -28,11 +28,22 @@ public:
     /// @return Corresponding PgnType value, or PgnType::Unknown if not recognized.
     static PgnType DecodePgn(uint32_t p);
 
-    static uint32_t extract_pgn(const struct can_frame& frame);
+    static PgnType extract_pgn(const struct can_frame& frame);
 
 public:
+    CanMessage & operator=(const CanMessage & other)
+    {
+        this->pgn = other.pgn;
+
+        for (int i = 0; i < sizeof(data); ++i)
+        {
+            this->data[i] = other.data[i];
+        }
+        return *this;
+    }
+
     /// @brief Raw PGN value extracted from the CAN identifier.
-    uint32_t pgn { 0 };
+    PgnType pgn { Unknown };
 
     /// @brief Raw 8‑byte CAN payload.
     uint8_t data[8] { 0 };
