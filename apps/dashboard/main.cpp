@@ -14,7 +14,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "SocketCAN.h"
 #include "CanMessage.hpp"
 #include "CommCan.hpp"
 #include "CanProcessor.hpp"

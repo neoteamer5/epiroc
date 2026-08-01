@@ -11,7 +11,6 @@ add_library(can-messages
     CanReader.cpp
     CanWriter.cpp
     CommCan.cpp
-    #SocketCAN.cpp
 )
 
 target_include_directories(can-messages

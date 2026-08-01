@@ -16,7 +16,6 @@
 //     - CANWriter (write FD)
 // -----------------------------------------------------------------------------
 #pragma once
-#include "SocketCAN.h"
 
 class CommCan
 {
