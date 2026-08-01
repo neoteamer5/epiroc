@@ -10,6 +10,7 @@
 #include "CanProcessor.hpp"
 #include "CanMessage.hpp"
 #include <unistd.h>
+#include <iostream>
 
 CanProcessor & CanProcessor::Instance()
 {
@@ -42,6 +43,13 @@ bool CanProcessor::PopCommand(CanCommand & cmd)
     return true;
 }
 
+bool CanProcessor::PushCommand(CanCommand & cmd)
+{
+    std::lock_guard<std::mutex> lock(outMutex);
+    outQueue.push(cmd);
+    return true;
+}
+
 void CanProcessor::Start()
 {
     running = true;
@@ -68,7 +76,7 @@ CanProcessor::Handler CanProcessor::GetHandler(CanMessage::PgnType pgn)
     {
         return it->second;
     }
-
+    //std::cout << pgn << std::endl;
     return nullptr;
 }
 
@@ -77,71 +85,41 @@ void CanProcessor::Loop()
     while (running)
     {
         CanMessage msg;
+        bool hasMsg = false;
 
         // Try to get a message
         {
-            std::lock_guard<std::mutex> lock(inMutex);
-
+            //std::lock_guard<std::mutex> lock(inMutex);
+            int inQueueSize = inQueue.size();
+            if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
+            
             if (inQueue.empty())
             {
-                usleep(10000);
+                usleep(100000);
                 continue;
             }
 
             msg = inQueue.front();
             inQueue.pop();
-            auto handle = GetHandler(msg.pgn);
-            if (handle != nullptr)
-            {
-                handle(msg);
-                /*
 
-                case CanMessage::PgnType::Speed: handle_speed(msg.data); break;   // Speed
-                case CanMessage::PgnType::Rmp: handle_rpm(msg.data); break;     // RPM
-                case CanMessage::PgnType::Fuel: handle_fuel(msg.data); break;    // Fuel
-                case CanMessage::PgnType::Temp: handle_temp(msg.data); break;    // Temperature
-                case CanMessage::PgnType::Lamp: handle_lamp(msg.data); break;    // Lamp / Warning
-                case CanMessage::PgnType::Fault: handle_fault(msg.data); break;   // Fault
-                default:     handle_unknown(m.pgn); break;
-                
-                */            
-            }
+            hasMsg = true;
+
         }
-
-        // Decode PGN using CanMessage class
-        auto pgn = CanMessage::DecodePgn(msg.pgn);
-
-        CanCommand cmd {};
-        bool push = false;
-
-        // ---------------------------------------------------------------------
-        // PGN-based processing logic
-        // ---------------------------------------------------------------------
-
-        switch (pgn)
+        if (!hasMsg)
         {
-            case CanMessage::PgnType::Temp:
-                cmd.pump = (msg.data[0] > 80 ? 70 : 40);
-                cmd.fan  = (msg.data[0] > 80 ? 70 : 40);
-                push = true;
-                break;
-
-            case CanMessage::PgnType::Lamp:
-            case CanMessage::PgnType::Fault:
-                cmd.pump = 100;
-                cmd.fan  = 100;
-                push = true;
-                break;
-
-            default:
-                break;
+            return;
         }
-
-        // Push command if generated
-        if (push)
+        else
         {
-            std::lock_guard<std::mutex> lock(outMutex);
-            outQueue.push(cmd);
+            //std::cout << "pop msg pgn=" << msg.pgn << std::endl; 
         }
+
+        auto handle = GetHandler(msg.pgn);
+        if (handle != nullptr)
+        {
+            handle(msg);
+            std::cout << "outQueue size=" << outQueue.size() << std::endl;     
+        }
+       
     }
 }

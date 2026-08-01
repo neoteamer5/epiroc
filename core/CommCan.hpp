@@ -55,4 +55,6 @@ private:
     CommCan();
     CommCan(const CommCan &) = delete;
     CommCan & operator=(const CommCan &) = delete;
+
+    int sock;
 };

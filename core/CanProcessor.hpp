@@ -36,6 +36,9 @@ public:
     /// @brief Pops a CanCommand from the output queue if available.
     bool PopCommand(CanCommand & cmd);
 
+    /// @brief Pushes a CanCommand into the processor's output queue.
+    bool PushCommand(CanCommand & cmd);    
+
     /// @brief Launches the processor thread.
     void Start();
 

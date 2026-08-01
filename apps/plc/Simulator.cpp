@@ -26,7 +26,7 @@ enum PlcState {
 };
 
 PlcState plc_state = PLC_NORMAL;
-
+int sock = -1;
 
 /**
  * Print telemetry + outputs + Linux commands in fixed columns
@@ -146,7 +146,7 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
     uint32_t id = rx.can_id & 0x1FFFFFFF;
     uint32_t pgn = (id >> 8) & 0xFFFF;
 
-    if (pgn == 0xFF50)
+    if (pgn == CanMessage::PgnType::Fault) 
     {
         pump_cmd = rx.data[0];
         fan_cmd = rx.data[1];
@@ -155,6 +155,10 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
                   << " fan=" << int(fan_cmd) << "\n";
 
         return true;
+    }
+    else
+    {
+        std::cout << "unknown pgn=" << pgn << std::endl;
     }
 
     return false;

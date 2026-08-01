@@ -22,7 +22,7 @@ CommCan & CommCan::Instance()
     return instance;
 }
 
-CommCan::CommCan()
+CommCan::CommCan() : sock(-1)
 {
 }
 

@@ -65,11 +65,11 @@ void CanWriter::Loop()
         }
 
         // ---------------------------------------------------------------------
-        // Build CAN frame (example — adapt to your PGN/CanCommand format)
+        // Build CAN frame
         // ---------------------------------------------------------------------
         struct can_frame frame {};
-        frame.can_id  = 0x18FF0000;   // Example PGN
-        frame.can_dlc = 8;
+        frame.can_id  = 0x18EF00E5 | CAN_EFF_FLAG;  // EF00 is fault
+        frame.can_dlc = sizeof(cmd.data);
 
         frame.data[0] = cmd.pump;
         frame.data[1] = cmd.fan;
