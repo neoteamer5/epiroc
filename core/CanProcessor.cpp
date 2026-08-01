@@ -31,13 +31,13 @@ void CanProcessor::PushMessage(const CanMessage & msg)
 
 bool CanProcessor::PopCommand(CanCommand & cmd)
 {
-    std::lock_guard<std::mutex> lock(outMutex);
-
+    // Single thread consumer can safely and correctly check if queue is empty without lock
     if (outQueue.empty())
     {
         return false;
     }
-
+    
+    std::lock_guard<std::mutex> lock(outMutex);
     cmd = outQueue.front();
     outQueue.pop();
     return true;
@@ -85,33 +85,22 @@ void CanProcessor::Loop()
     while (running)
     {
         CanMessage msg;
-        bool hasMsg = false;
 
-        // Try to get a message
+
+        int inQueueSize = inQueue.size();
+        if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
+
+        // Single thread consumer can safely and correctly check if queue is empty without lock
+        if (inQueue.empty())
         {
-            //std::lock_guard<std::mutex> lock(inMutex);
-            int inQueueSize = inQueue.size();
-            if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
-
-            if (inQueue.empty())
-            {
-                usleep(100000);
-                continue;
-            }
-
-            msg = inQueue.top();
-            inQueue.pop();
-
-            hasMsg = true;
-
-        }
-        if (!hasMsg)
-        {
-            return;
+            usleep(100000);
+            continue;
         }
         else
         {
-            //std::cout << "pop msg pgn=" << msg.pgn << std::endl; 
+            std::lock_guard<std::mutex> lock(inMutex);
+            msg = inQueue.top();
+            inQueue.pop();
         }
 
         auto handle = GetHandler(msg.pgn);
