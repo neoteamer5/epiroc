@@ -68,7 +68,8 @@ void CanWriter::Loop()
         // Build CAN frame
         // ---------------------------------------------------------------------
         struct can_frame frame {};
-        frame.can_id  = 0x18EF00E5 | CAN_EFF_FLAG;  // EF00 is fault
+        //frame.can_id  = 0x18EF00E5 | CAN_EFF_FLAG;  // EF00 is fault
+        frame.can_id = CanMessage::MakeJ1939CanId(cmd.pgn, CanMessage::SourceAddress::Dashboard);
         frame.can_dlc = sizeof(cmd.data);
 
         frame.data[0] = cmd.pump;
