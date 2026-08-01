@@ -9,6 +9,7 @@
 
 #include "CanMessage.hpp"
 #include "CanCommand.hpp"
+#include "PriorityQueue.hpp"
 
 /// @brief Singleton that processes incoming CAN messages and generates outgoing commands.
 ///
@@ -63,8 +64,8 @@ private:
     CanProcessor();
     void Loop();
 
-    std::queue<CanMessage> inQueue;
-    std::queue<CanCommand> outQueue;
+    InQueue inQueue;
+    OutQueue outQueue;
 
     std::mutex inMutex;
     std::mutex outMutex;

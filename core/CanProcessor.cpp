@@ -92,14 +92,14 @@ void CanProcessor::Loop()
             //std::lock_guard<std::mutex> lock(inMutex);
             int inQueueSize = inQueue.size();
             if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
-            
+
             if (inQueue.empty())
             {
                 usleep(100000);
                 continue;
             }
 
-            msg = inQueue.front();
+            msg = inQueue.top();
             inQueue.pop();
 
             hasMsg = true;
