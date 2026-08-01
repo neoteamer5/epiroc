@@ -1,20 +1,22 @@
 /**
  * @brief Implements CAN command transmission for outgoing J1939 messages.
  *
- * CanWriter retrieves Command objects from CanProcessor and sends them as CAN
+ * CanWriter retrieves CanCommand objects from CanProcessor and sends them as CAN
  * frames. This module isolates all CAN write operations to ensure clean
  * separation between processing and I/O.
  */
 
 #include "CanWriter.hpp"
 #include "CanProcessor.hpp"
+#include "CanCommand.hpp"
+#include "CommCan.hpp"
 #include <unistd.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-void CanWriter::Init(int sock)
+void CanWriter::Init(CommCan * comm)
 {
-    canSock = sock;
+    canSock = comm->GetSocket();
 }
 
 void CanWriter::Start()
@@ -35,7 +37,7 @@ void CanWriter::Loop()
 {
     while (running)
     {
-        Command cmd;
+        CanCommand cmd;
         bool ok = CanProcessor::Instance().PopCommand(cmd);
 
         if (!ok)
@@ -45,7 +47,7 @@ void CanWriter::Loop()
         }
 
         // ---------------------------------------------------------------------
-        // Build CAN frame (example — adapt to your PGN/command format)
+        // Build CAN frame (example — adapt to your PGN/CanCommand format)
         // ---------------------------------------------------------------------
         struct can_frame frame {};
         frame.can_id  = 0x18FF0000;   // Example PGN

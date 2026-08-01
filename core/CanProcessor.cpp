@@ -1,15 +1,14 @@
 /**
- * @file CanProcessor.cpp
  * @brief Implements CAN message processing and command generation.
  *
- * CanProcessor receives incoming Message objects from CanReader, interprets
- * their PGNs using CanMessages::DecodePgn(), and produces Command objects for
- * CanWriter. This module owns both the incoming and outgoing queues and runs a
- * background thread to continuously process messages.
+ * CanProcessor receives incoming CanMessage objects from CanReader, interprets
+ * their PGNs using CanMessage::DecodePgn(), and produces CanCommand objects
+ * for CanWriter. This module owns both the incoming and outgoing queues and
+ * runs a background thread to continuously process messages.
  */
 
 #include "CanProcessor.hpp"
-#include "CanMessages.hpp"
+#include "CanMessage.hpp"
 #include <unistd.h>
 
 CanProcessor & CanProcessor::Instance()
@@ -23,13 +22,13 @@ CanProcessor::CanProcessor()
 {
 }
 
-void CanProcessor::PushMessage(const Message & msg)
+void CanProcessor::PushMessage(const CanMessage & msg)
 {
     std::lock_guard<std::mutex> lock(inMutex);
     inQueue.push(msg);
 }
 
-bool CanProcessor::PopCommand(Command & cmd)
+bool CanProcessor::PopCommand(CanCommand & cmd)
 {
     std::lock_guard<std::mutex> lock(outMutex);
 
@@ -61,7 +60,7 @@ void CanProcessor::Loop()
 {
     while (running)
     {
-        Message msg;
+        CanMessage msg;
 
         // Try to get a message
         {
@@ -77,10 +76,10 @@ void CanProcessor::Loop()
             inQueue.pop();
         }
 
-        // Decode PGN using CanMessages class
-        auto pgn = CanMessages::DecodePgn(msg.pgn);
+        // Decode PGN using CanMessage class
+        auto pgn = CanMessage::DecodePgn(msg.pgn);
 
-        Command cmd {};
+        CanCommand cmd {};
         bool push = false;
 
         // ---------------------------------------------------------------------
@@ -89,14 +88,14 @@ void CanProcessor::Loop()
 
         switch (pgn)
         {
-            case CanMessages::PgnType::Temp:
+            case CanMessage::PgnType::Temp:
                 cmd.pump = (msg.data[0] > 80 ? 70 : 40);
                 cmd.fan  = (msg.data[0] > 80 ? 70 : 40);
                 push = true;
                 break;
 
-            case CanMessages::PgnType::Lamp:
-            case CanMessages::PgnType::Fault:
+            case CanMessage::PgnType::Lamp:
+            case CanMessage::PgnType::Fault:
                 cmd.pump = 100;
                 cmd.fan  = 100;
                 push = true;

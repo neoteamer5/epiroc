@@ -3,14 +3,14 @@
 #include <thread>
 #include <atomic>
 #include "CommCan.hpp"
-#include "Message.hpp"
+#include "CanMessage.hpp"
 #include "CanProcessor.hpp"
 
-/// @brief Reads CAN frames from the CommCan socket and pushes Message objects
+/// @brief Reads CAN frames from the CommCan socket and pushes CanMessage objects
 ///        into CanProcessor.
 ///
 /// CanReader runs a background thread that continuously reads CAN frames from
-/// the CAN device. Each frame is converted into a Message structure and pushed
+/// the CAN device. Each frame is converted into a CanMessage structure and pushed
 /// into CanProcessor for further handling.
 class CanReader
 {

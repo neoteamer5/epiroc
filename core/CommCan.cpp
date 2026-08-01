@@ -9,6 +9,12 @@
 #include "CommCan.hpp"
 #include <fcntl.h>
 #include <unistd.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <cstring>
 
 CommCan & CommCan::Instance()
 {

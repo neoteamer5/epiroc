@@ -3,7 +3,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
-#include "Command.hpp"
+#include "CommCan.hpp"
 
 /// @brief Sends outgoing CAN commands produced by CanProcessor.
 ///

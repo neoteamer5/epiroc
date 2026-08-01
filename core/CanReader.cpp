@@ -2,12 +2,13 @@
 // File: CanReader.cpp
 // Description:
 //     Implements the CanReader singleton. Reads CAN frames from the CommCan
-//     socket, converts them into Message objects, and pushes them into
+//     socket, converts them into CanMessage objects, and pushes them into
 //     CanProcessor for further handling.
 // -----------------------------------------------------------------------------
 
 #include "CanReader.hpp"
 #include <linux/can.h>
+#include <linux/can/raw.h>
 #include <unistd.h>
 #include <cstring>
 
@@ -61,8 +62,8 @@ void CanReader::Loop()
             continue;
         }
 
-        Message msg;
-        msg.pgn = extract_pgn(frame);
+        CanMessage msg;
+        msg.pgn = CanMessage::extract_pgn(frame);
         std::memcpy(msg.data, frame.data, 8);
 
         processor->PushMessage(msg);

@@ -4,39 +4,39 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
-#include "Message.hpp"
-#include "Command.hpp"
+#include "CanMessage.hpp"
+#include "CanCommand.hpp"
 
 /// @brief Singleton that processes incoming CAN messages and generates outgoing commands.
 ///
 /// CanProcessor owns two internal queues:
-///   - Incoming Message queue (filled by CanReader)
-///   - Outgoing Command queue (consumed by CanWriter)
+///   - Incoming CanMessage queue (filled by CanReader)
+///   - Outgoing CanCommand queue (consumed by CanWriter)
 ///
 /// Responsibilities:
 ///   - Provide PushMessage() for CanReader
 ///   - Provide PopCommand() for CanWriter
-///   - Process incoming PGNs and generate Commands
+///   - Process incoming PGNs and generate CanCommand objects
 ///
 /// Used by:
-///   - CanReader (pushes Message)
-///   - CanWriter (pops Command)
+///   - CanReader (pushes CanMessage)
+///   - CanWriter (pops CanCommand)
 class CanProcessor
 {
 public:
     /// @brief Returns the global singleton instance.
     static CanProcessor & Instance();
 
-    /// @brief Pushes an incoming Message into the processor's input queue.
+    /// @brief Pushes an incoming CAN message into the processor's input queue.
     ///
-    /// @param msg Message object produced by CanReader.
-    void PushMessage(const Message & msg);
+    /// @param msg CanMessage object produced by CanReader.
+    void PushMessage(const CanMessage & msg);
 
-    /// @brief Pops a Command from the output queue if available.
+    /// @brief Pops a CanCommand from the output queue if available.
     ///
-    /// @param cmd Reference to Command object to fill.
+    /// @param cmd Reference to CanCommand object to fill.
     /// @return true if a command was retrieved, false if queue is empty.
-    bool PopCommand(Command & cmd);
+    bool PopCommand(CanCommand & cmd);
 
     /// @brief Launches the processor thread.
     void Start();
@@ -48,8 +48,8 @@ private:
     CanProcessor();
     void Loop();
 
-    std::queue<Message> inQueue;
-    std::queue<Command> outQueue;
+    std::queue<CanMessage> inQueue;
+    std::queue<CanCommand> outQueue;
 
     std::mutex inMutex;
     std::mutex outMutex;

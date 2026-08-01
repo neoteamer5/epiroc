@@ -6,13 +6,18 @@ cmake_minimum_required(VERSION 3.16)
 project(can-messages LANGUAGES CXX)
 
 add_library(can-messages
-    CanMessages.cpp
+    CanMessage.cpp
+    CanProcessor.cpp
+    CanReader.cpp
+    CanWriter.cpp
+    CommCan.cpp
     SocketCAN.cpp
 )
 
 target_include_directories(can-messages
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/core
 )
 
 target_compile_features(can-messages PUBLIC cxx_std_17)
