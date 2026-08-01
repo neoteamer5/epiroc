@@ -11,6 +11,7 @@
 #include <linux/can/raw.h>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 
 CanReader & CanReader::Instance()
 {
@@ -52,7 +53,7 @@ void CanReader::Join()
 void CanReader::Loop()
 {
     struct can_frame frame;
-
+    static int countFrame = 0;
     while (running)
     {
         int nbytes = read(fd, &frame, sizeof(frame));
@@ -61,6 +62,7 @@ void CanReader::Loop()
         {
             continue;
         }
+        std::cout << "msg count=" << ++countFrame << std::endl;
 
         CanMessage msg;
         msg.pgn = CanMessage::extract_pgn(frame);

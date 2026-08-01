@@ -117,8 +117,8 @@ void handle_temp(const CanMessage& msg)
     cmd.pump = (temp > 80 ? 70 : 40);
     cmd.fan  = (temp > 80 ? 70 : 40);
 
-    std::lock_guard<std::mutex> lock(outMutex);
-    outQ.push(cmd);
+    //std::lock_guard<std::mutex> lock(outMutex);
+    //outQ.push(cmd);
 }
 
 void handle_lamp(const CanMessage& /*msg*/)
@@ -129,8 +129,8 @@ void handle_lamp(const CanMessage& /*msg*/)
     cmd.pump = 100;
     cmd.fan  = 100;
 
-    std::lock_guard<std::mutex> lock(outMutex);
-    outQ.push(cmd);
+    //std::lock_guard<std::mutex> lock(outMutex);
+    //outQ.push(cmd);
 }
 
 void handle_fault(const CanMessage& /*msg*/)

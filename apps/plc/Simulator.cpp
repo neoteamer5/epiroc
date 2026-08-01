@@ -78,6 +78,7 @@ void SendPgn(uint32_t pgn, const uint8_t *data, size_t len)
 {
     struct can_frame frame;
     std::memset(&frame, 0, sizeof(frame));
+    static int countFrame = 0;
 
     uint32_t arb_id = (0x18 << 24) | (pgn << 8) | 0x80;
     frame.can_id = arb_id | CAN_EFF_FLAG;
@@ -85,6 +86,7 @@ void SendPgn(uint32_t pgn, const uint8_t *data, size_t len)
 
     std::memcpy(frame.data, data, len);
     write(sock, &frame, sizeof(frame));
+    std::cout << "msg count=" << ++countFrame << std::endl;
 }
 
 /**
@@ -166,8 +168,8 @@ bool ApplySafetyLogic(int temp)
 {
     if (temp > 120)
     {
-        uint8_t lamp_bytes[8] = { 0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-        SendPgn(0xFECA, lamp_bytes, 8);
+        //uint8_t lamp_bytes[8] = { 0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+        //SendPgn(0xFECA, lamp_bytes, 8);
 
         SendFaultPgn(0x02);
         std::cout << "PLC SAFETY: Over-temp (>120). Warning ON.\n";
@@ -209,7 +211,6 @@ void ApplyStateLogic(bool safety_overtemp,
             break;
 
         case PLC_FAULT:
-            SendFaultPgn(0x02);
             pump_out = 100;
             fan_out = 100;
             break;
@@ -342,7 +343,7 @@ int main()
 
         UpdateStateMachine(temp, last_test);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
     close(sock);
