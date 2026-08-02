@@ -227,11 +227,11 @@ void ApplyStateLogic(bool safety_overtemp,
  * PLC state machine transitions
  *
  */
-void UpdateStateMachine(int temp,
+void UpdateStateMachine(int temp, bool received_cmd, 
                         std::chrono::steady_clock::time_point &last_test)
 {
     auto now = std::chrono::steady_clock::now();
-
+    static bool testPass = false;
     switch (plc_state)
     {
         case PLC_NORMAL:
@@ -241,6 +241,7 @@ void UpdateStateMachine(int temp,
                 SendFaultPgn(0xFF); //code FF = TEST, send only once per test
                 plc_state = PLC_TEST;
                 last_test = now;
+                testPass = false;
             }
             break;
 
@@ -253,9 +254,13 @@ void UpdateStateMachine(int temp,
             break;
 
         case PLC_TEST:
+            if (received_cmd)
+            {
+                testPass = true;
+            }
             if (std::chrono::duration_cast<std::chrono::seconds>(now - last_test).count() >= 5)
             {
-                std::cout << "PLC: Exiting TEST mode, returning to NORMAL.\n";
+                std::cout << "PLC: Exiting TEST mode, returning to NORMAL. TestPass=" << testPass << std::endl;
                 plc_state = PLC_NORMAL;
             }
             break;
@@ -335,7 +340,7 @@ int main()
 
         ApplyStateLogic(safety_overtemp, received_cmd, pump_cmd, fan_cmd);
 
-        UpdateStateMachine(temp, last_test);
+        UpdateStateMachine(temp, received_cmd, last_test);
 
         usleep(1000000);
     }
