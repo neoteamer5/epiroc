@@ -36,7 +36,7 @@ bool CanProcessor::PopCommand(CanCommand & cmd)
     {
         return false;
     }
-    
+
     std::lock_guard<std::mutex> lock(outMutex);
     cmd = outQueue.front();
     outQueue.pop();
@@ -77,7 +77,7 @@ CanProcessor::Handler CanProcessor::GetHandler(CanMessage::PgnType pgn)
         return it->second;
     }
     //std::cout << pgn << std::endl;
-    return nullptr;
+    return handlers[CanMessage::PgnType::Unknown];
 }
 
 void CanProcessor::Loop()

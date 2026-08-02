@@ -19,16 +19,18 @@ public:
         Temp       = 0xFEEE,
         Lamp       = 0xFECA,
         Fault      = 0xEF00,
-        Unknown    = 0x0000
+        Unknown    = 0xFFFF,
+        Cmd        = 0x0000
     };
 
     /// @brief Strongly typed SourceAddress identifiers for CAN/J1939 messages.
     enum class SourceAddress : uint8_t
     {
-        Engine      = 0x00,
+        Core         = 0x00,
+        Engine       = 0x01,
         Transmission = 0x03,
-        Dashboard   = 0x17,
-        Simulator   = 0xE5
+        Dashboard    = 0x17,
+        Simulator    = 0xE5
     };
 
     static PgnType extract_pgn(const struct can_frame& frame);
