@@ -62,7 +62,7 @@ void CanReader::Loop()
         {
             continue;
         }
-        std::cout << "msg count=" << ++countFrame << std::endl;
+        //std::cout << "msg count=" << ++countFrame << std::endl;
 
         CanMessage msg;
         msg.pgn = CanMessage::extract_pgn(frame);

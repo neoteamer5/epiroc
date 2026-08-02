@@ -36,7 +36,8 @@ bool CanProcessor::PopCommand(CanCommand & cmd)
     {
         return false;
     }
-
+    static int countCmd = 0;
+    std::cout << "outQueue size=" << outQueue.size() << " count=" << ++countCmd << std::endl;  
     std::lock_guard<std::mutex> lock(outMutex);
     cmd = outQueue.front();
     outQueue.pop();
@@ -106,8 +107,7 @@ void CanProcessor::Loop()
         auto handle = GetHandler(msg.pgn);
         if (handle != nullptr)
         {
-            handle(msg);
-            std::cout << "outQueue size=" << outQueue.size() << std::endl;     
+            handle(msg);   
         }
        
     }

@@ -80,7 +80,7 @@ void SendPgn(CanMessage::PgnType pgn, const uint8_t *data, size_t len)
 
     std::memcpy(frame.data, data, len);
     write(sock, &frame, sizeof(frame));
-    std::cout << "msg count=" << ++countFrame << std::endl;
+    //std::cout << "msg count=" << ++countFrame << std::endl;
 }
 
 /**
@@ -144,9 +144,9 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
     {
         pump_cmd = rx.data[0];
         fan_cmd = rx.data[1];
-
+        static int countCmd = 0;
         std::cout << "PLC: Linux command pump=" << int(pump_cmd)
-                  << " fan=" << int(fan_cmd) << "\n";
+                  << " fan=" << int(fan_cmd) << " count=" << ++countCmd << "\n";
 
         return true;
     }
@@ -211,7 +211,6 @@ void ApplyStateLogic(bool safety_overtemp,
             break;
 
         case PLC_TEST:
-            SendFaultPgn(0x02);
             if (received_cmd)
             {
                 pump_out = pump_cmd;
@@ -239,7 +238,7 @@ void UpdateStateMachine(int temp,
             if (std::chrono::duration_cast<std::chrono::seconds>(now - last_test).count() >= 10)
             {
                 std::cout << "PLC: Entering TEST mode...\n";
-                SendFaultPgn(0x02);
+                SendFaultPgn(0xFF); //code FF = TEST, send only once per test
                 plc_state = PLC_TEST;
                 last_test = now;
             }
@@ -338,7 +337,7 @@ int main()
 
         UpdateStateMachine(temp, last_test);
 
-        usleep(50000);
+        usleep(1000000);
     }
 
     close(sock);
