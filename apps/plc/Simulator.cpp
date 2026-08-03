@@ -72,10 +72,10 @@ void SendPgn(CanMessage::PgnType pgn, const uint8_t *data, size_t len)
     std::memset(&frame, 0, sizeof(frame));
     static int countFrame = 0;
 
-    //uint32_t arb_id = (0x18 << 24) | (pgn << 8) | 0x80;
-    //frame.can_id = arb_id | CAN_EFF_FLAG;
+    uint32_t arb_id = (0x18 << 24) | (pgn << 8) | 0x80;
+    frame.can_id = arb_id | CAN_EFF_FLAG;
 
-    frame.can_id = CanMessage::MakeJ1939CanId(pgn, CanMessage::SourceAddress::Simulator);
+    frame.can_id = CanMessage::MakeJ1939CanId(pgn, CanMessage::SourceAddress::Simulator) | CAN_EFF_FLAG;
     frame.can_dlc = len;
 
     std::memcpy(frame.data, data, len);
