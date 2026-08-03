@@ -4,6 +4,7 @@
 build/
 
 !.gitignore
+!*.json
 
 # Allow C++ source files
 !*.cpp

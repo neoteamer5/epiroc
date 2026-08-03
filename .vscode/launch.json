@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug host",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/can_reader_demo",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "externalConsole": false
+        }
+    ]
+}

@@ -1,0 +1,4 @@
+{
+    "cmake.sourceDirectory": "/home/neomo/epiroc",
+    "cmake.ignoreCMakeListsMissing": true
+}
