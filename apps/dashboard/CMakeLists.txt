@@ -31,7 +31,6 @@ if(J1939_INCLUDE_DIR)
 endif()
 
 add_library(can_reader SHARED
-    can_reader.cpp
     api/can_reader_c_api.cpp
     api/CANReader.cpp
 )
