@@ -22,48 +22,6 @@ PlcState plc_state = PLC_NORMAL;
 int sock = -1;
 
 /**
- * Print telemetry + outputs + Linux commands in fixed columns
- *
- */
-void PrintDashboard(int speed,
-                    int rpm,
-                    int fuel,
-                    int temp,
-                    int warn,
-                    int pump_out,
-                    int fan_out,
-                    int pump_cmd,
-                    int fan_cmd)
-{
-    // Move cursor to top-left (keeps output in fixed area)
-    std::cout << "\033[H";
-
-    // Header
-    std::cout << std::left
-              << std::setw(10) << "SPEED"
-              << std::setw(10) << "RPM"
-              << std::setw(10) << "FUEL"
-              << std::setw(10) << "TEMP"
-              << std::setw(10) << "WARN"
-              << std::setw(10) << "PUMP_OUT"
-              << std::setw(10) << "FAN_OUT"
-              << std::setw(10) << "CMD(P/F)"
-              << "\n";
-
-    // Values
-    std::cout << std::left
-              << std::setw(10) << speed
-              << std::setw(10) << rpm
-              << std::setw(10) << fuel
-              << std::setw(10) << temp
-              << std::setw(10) << warn
-              << std::setw(10) << pump_out
-              << std::setw(10) << fan_out
-              << std::setw(10) << (std::to_string(pump_cmd) + "/" + std::to_string(fan_cmd))
-              << "\n";
-}
-
-/**
  * Send a CAN PGN frame
  *
  */
