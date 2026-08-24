@@ -16,6 +16,7 @@
 //     - CANWriter (write FD)
 // -----------------------------------------------------------------------------
 #pragma once
+#include "CanMessage.hpp"
 
 class CommCan
 {
@@ -30,10 +31,10 @@ public:
     // -------------------------------------------------------------------------
     // Function: Init
     // Description:
-    //     Initializes the CAN socket using init_socket(). Must be called before
-    //     any CANReader or CANWriter operations.
+    //     Initializes and binds the J1939 CAN socket using the specified local
+    //     source address. Must be called before any CAN read/write operations.
     // -------------------------------------------------------------------------
-    void Init();
+    void Init(CanMessage::SourceAddress source);
 
     // -------------------------------------------------------------------------
     // Function: SetNonBlock

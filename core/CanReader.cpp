@@ -7,8 +7,8 @@
 // -----------------------------------------------------------------------------
 
 #include "CanReader.hpp"
-#include <linux/can.h>
-#include <linux/can/raw.h>
+#include <linux/can/j1939.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
@@ -52,21 +52,24 @@ void CanReader::Join()
 
 void CanReader::Loop()
 {
-    struct can_frame frame;
+    uint8_t payload[8];
     static int countFrame = 0;
     while (running)
     {
-        int nbytes = read(fd, &frame, sizeof(frame));
+        sockaddr_can src{};
+        socklen_t src_len = sizeof(src);
+        int nbytes = recvfrom(fd, payload, sizeof(payload),
+            0, reinterpret_cast<sockaddr*>(&src), &src_len); 
 
         if (nbytes < 0)
         {
             continue;
         }
-        //std::cout << "msg count=" << ++countFrame << std::endl;
+        std::cout << "msg count=" << ++countFrame << std::endl;
 
         CanMessage msg;
-        msg.pgn = CanMessage::extract_pgn(frame);
-        std::memcpy(msg.data, frame.data, 8);
+        msg.pgn = static_cast<CanMessage::PgnType>(src.can_addr.j1939.pgn);
+        std::memcpy(msg.data, payload, 8);
 
         processor->PushMessage(msg);
     }

@@ -11,7 +11,7 @@ class CanMessage
 {
 public:
     /// @brief Strongly typed PGN identifiers for CAN/J1939 messages.
-    enum PgnType : uint16_t
+    enum PgnType : uint32_t
     {
         Speed      = 0xFEF2,
         Rpm        = 0xF004,

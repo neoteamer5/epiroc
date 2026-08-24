@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
-#include <linux/can.h>
+#include <linux/can/j1939.h>
+#include <net/if.h> // for if_nametoindex
 #include <sys/socket.h>
 #include <unistd.h> // for unix usleep, and read / write
 #include <chrono> // for std::chrono
@@ -66,21 +67,20 @@ void PrintDashboard(int speed,
  * Send a CAN PGN frame
  *
  */
-void SendPgn(CanMessage::PgnType pgn, const uint8_t *data, size_t len)
+void SendPgn(CanMessage::PgnType pgn, const uint8_t* data, size_t len)
 {
-    struct can_frame frame;
-    std::memset(&frame, 0, sizeof(frame));
-    static int countFrame = 0;
+    struct sockaddr_can dst{};
 
-    uint32_t arb_id = (0x18 << 24) | (pgn << 8) | 0x80;
-    frame.can_id = arb_id | CAN_EFF_FLAG;
+    dst.can_family = AF_CAN;
+    dst.can_ifindex = if_nametoindex("vcan0");
 
-    frame.can_id = CanMessage::MakeJ1939CanId(pgn, CanMessage::SourceAddress::Simulator) | CAN_EFF_FLAG;
-    frame.can_dlc = len;
+    dst.can_addr.j1939.name = J1939_NO_NAME;
+    dst.can_addr.j1939.addr = J1939_NO_ADDR; // broadcast sendto for telemetry PGNs
+    dst.can_addr.j1939.pgn = static_cast<uint32_t>(pgn);
 
-    std::memcpy(frame.data, data, len);
-    write(sock, &frame, sizeof(frame));
-    //std::cout << "msg count=" << ++countFrame << std::endl;
+    auto ret = sendto(sock, data, len,
+        0, reinterpret_cast<struct sockaddr*>(&dst), sizeof(dst));
+    //std::cout << "sendto ret=" << ret << " errno=" << errno << std::endl;
 }
 
 /**
@@ -290,7 +290,7 @@ void EnableKeyboardNonBlocking()
  */
 int main()
 {
-    CommCan::Instance().Init();
+    CommCan::Instance().Init(CanMessage::SourceAddress::Simulator);
     CommCan::Instance().SetNonBlock();
     sock =  CommCan::Instance().GetSocket();
 

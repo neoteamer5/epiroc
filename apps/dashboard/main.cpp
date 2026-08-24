@@ -110,7 +110,7 @@ void handle_unknown(const CanMessage& msg)
 /// @return Exit status code.
 int main()
 {
-    CommCan::Instance().Init();
+    CommCan::Instance().Init(CanMessage::SourceAddress::Dashboard);
 
     CanReader::Instance().Init(&CommCan::Instance());
     CanWriter::Instance().Init(&CommCan::Instance());
