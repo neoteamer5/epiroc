@@ -7,7 +7,7 @@ from PySide6.QtCore import QTimer
 
 import ctypes
 
-lib = ctypes.CDLL("./build/libcan_reader.so")
+lib = ctypes.CDLL("./build/lib/libcan_reader.so")
 
 class CANData(ctypes.Structure):
     _fields_ = [
@@ -44,7 +44,7 @@ class Dashboard(QWidget):
         self.rpm     = GaugeWidget("RPM",     0, 4000, -130, 130)
         self.fuel    = GaugeWidget("Fuel",    0, 100, -130, 130)
         self.coolant = GaugeWidget("Coolant", 0, 150, -130, 130)
-        self.warning = WarningWidget("gauges/warning.svg")
+        self.warning = WarningWidget("./apps/dashboard/qt-app/gauges/warning.svg")
 
         layout.addWidget(self.speed,   0, 0)
         layout.addWidget(self.rpm,     0, 1)

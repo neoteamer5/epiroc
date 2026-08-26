@@ -30,6 +30,8 @@ if(J1939_INCLUDE_DIR)
     endif()
 endif()
 
+# Build libcan_reader.so as a shared C API library for use by
+# Python applications (via ctypes) or Qt-based applications.
 add_library(can_reader SHARED
     api/can_reader_c_api.cpp
     api/CANReader.cpp
@@ -48,6 +50,9 @@ target_link_libraries(can_reader
         ${RT_LIB}
 )
 
+# Build the Linux firmware demo application using libcan_reader.so.
+# This demonstrates how the CAN reader can be integrated and used
+# directly by a native firmware/application executable.
 add_executable(can_reader_demo
     main.cpp
 )
@@ -59,6 +64,8 @@ target_link_libraries(can_reader_demo
         ${RT_LIB}
 )
 
+# Build a native C++ test executable to verify the C API exported
+# by libcan_reader.so independently of the Python/Qt application.
 add_executable(test_c_api
     api/test/test_c_api.cpp
 )
