@@ -35,7 +35,7 @@ python apps/dashboard/qt-app/test_c_api.py
 To start the dashboard application:
 
 ```bash
-python apps/dashboard/qt-app/main.py
+cd apps/dashboard/qt-app && python main.py
 ```
 
 ## Quick Start
