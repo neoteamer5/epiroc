@@ -16,10 +16,10 @@ class Dashboard(QWidget):
         layout = QGridLayout(self)
 
         # gauges
-        self.speed   = GaugeWidget("Speed",   0, 200, -130, 130)
-        self.rpm     = GaugeWidget("RPM",     0, 4000, -130, 130)
-        self.fuel    = GaugeWidget("Fuel",    0, 100, -130, 130)
-        self.coolant = GaugeWidget("Coolant", 0, 150, -130, 130)
+        self.speed   = GaugeWidget("Speed",   0, 180, -90, 225, "gauges/speedometer.svg")
+        self.rpm     = GaugeWidget("RPM",     0, 5000, -90, 90, "gauges/tachometer.svg")
+        self.fuel    = GaugeWidget("Fuel",    0, 100, -180, 1, "gauges/fuel.svg")
+        self.coolant = GaugeWidget("Coolant", 0, 150, -180, 1, "gauges/coolant.svg")
 
         # warning
         self.warning = WarningWidget("gauges/warning.svg")
@@ -28,8 +28,8 @@ class Dashboard(QWidget):
         # layout
         layout.addWidget(self.speed,   0, 0)
         layout.addWidget(self.rpm,     0, 1)
-        layout.addWidget(self.fuel,    1, 0)
-        layout.addWidget(self.coolant, 1, 1)
+        layout.addWidget(self.fuel,    1, 1)
+        layout.addWidget(self.coolant, 1, 0)
         layout.addWidget(self.warning, 2, 0, 1, 2)
 
         # connect signal
