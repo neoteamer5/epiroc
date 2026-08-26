@@ -52,7 +52,21 @@ void CanReader::Join()
 
 void CanReader::Loop()
 {
-    uint8_t payload[8];
+    /***
+     * Why max size 1785?
+
+        Each TP data packet (TP.DT) is an 8-byte CAN frame:
+
+        Byte 0       Sequence number
+        Byte 1–7     Payload (7 bytes)
+
+        The sequence number is one byte, allowing up to 255 packets:
+
+        255 packets × 7 payload bytes
+        = 1785 bytes
+     */
+    static const uint32_t J1939_MAX_PAYLOAD_SIZE= 1785;
+    static uint8_t payload[J1939_MAX_PAYLOAD_SIZE];
     static int countFrame = 0;
     while (running)
     {
@@ -69,6 +83,9 @@ void CanReader::Loop()
 
         CanMessage msg;
         msg.pgn = static_cast<CanMessage::PgnType>(src.can_addr.j1939.pgn);
+
+        // Demo only: assume an 8-byte payload. Production code should determine
+        // the payload length from the PGN definition and the actual received length.
         std::memcpy(msg.data, payload, 8);
 
         processor->PushMessage(msg);

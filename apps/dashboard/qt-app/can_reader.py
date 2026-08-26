@@ -48,7 +48,7 @@ class CANReader:
         warn = False
 
         while True:
-            data, addr = self.sock.recvfrom(8)
+            data, addr = self.sock.recvfrom(1785)
 
             # J1939 sockaddr normally contains:
             # interface, name, pgn, address
