@@ -19,9 +19,29 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # ---------------------------------------------------------------------------
 # Options
 # ---------------------------------------------------------------------------
-option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_APPS  "Build application modules" ON)
-option(BUILD_CORE  "Build central control core" ON)
+option(BUILD_APPS "Build application modules" ON)
+option(BUILD_CORE "Build central control core" ON)
+
+# ---------------------------------------------------------------------------
+# Standard CMake testing support
+#
+# include(CTest) creates the standard BUILD_TESTING option.
+# BUILD_TESTING defaults to ON.
+#
+# When BUILD_TESTING is ON, include(CTest) also calls enable_testing().
+#
+# Run all registered tests:
+#   ctest --test-dir build --output-on-failure
+#
+# Run only selected registered tests by name:
+#   ctest --test-dir build \
+#       -R "CoolingCalibrationTest|StateMachineTest|PIDControllerTest|CoolingControllerTest" \
+#       --output-on-failure
+#
+# Run the Cooling Control GTest executable directly:
+#   ./build/bin/cooling_control_tests
+# ---------------------------------------------------------------------------
+include(CTest)
 
 # ---------------------------------------------------------------------------
 # Output directories
@@ -29,15 +49,6 @@ option(BUILD_CORE  "Build central control core" ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# ---------------------------------------------------------------------------
-# Testing
-#
-# Must be enabled before adding subdirectories that register tests.
-# ---------------------------------------------------------------------------
-if(BUILD_TESTS)
-    enable_testing()
-endif()
 
 # ---------------------------------------------------------------------------
 # Dependencies
@@ -60,11 +71,8 @@ if(BUILD_APPS)
 endif()
 
 # ---------------------------------------------------------------------------
-# Additional top-level tests
+# Optional top-level tests
 # ---------------------------------------------------------------------------
-# Only keep this if ~/epiroc/tests/CMakeLists.txt actually exists and
-# contains additional project-level tests.
-#
-# if(BUILD_TESTS)
-#     add_subdirectory(tests)
-# endif()
+if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt")
+    add_subdirectory(tests)
+endif()

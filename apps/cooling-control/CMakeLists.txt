@@ -1,6 +1,8 @@
-enable_testing()
+# ---------------------------------------------------------------------------
+# Cooling Control Library
+# ---------------------------------------------------------------------------
 
-add_library(cooling_control
+add_library(cooling_control STATIC
     CoolingControl.cpp
 )
 
@@ -9,6 +11,14 @@ target_include_directories(cooling_control
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_compile_features(cooling_control PUBLIC cxx_std_17)
+target_compile_features(cooling_control
+    PUBLIC
+        cxx_std_17
+)
 
-add_subdirectory(test)
+# ---------------------------------------------------------------------------
+# Unit Tests
+# ---------------------------------------------------------------------------
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()
