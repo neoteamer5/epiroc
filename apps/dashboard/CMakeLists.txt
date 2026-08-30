@@ -53,8 +53,44 @@ target_link_libraries(can_reader
 # Build the Linux firmware demo application using libcan_reader.so.
 # This demonstrates how the CAN reader can be integrated and used
 # directly by a native firmware/application executable.
+#
+# Dependency direction:
+#
+#   can_reader_demo
+#       |
+#       +----> can_reader
+#       |        |
+#       |        +----> CAN/J1939 infrastructure
+#       |
+#       +----> cooling_control
+#       |        |
+#       |        +----> CoolingController
+#       |        +----> StateMachine
+#       |        +----> PIDController
+#       |
+#       +----> Threads::Threads
+#
+# Application-specific components such as DashboardBackend,
+# ControlTask, and TempHandler belong to the dashboard application.
+#
+# The dependency direction shall remain:
+#
+#   dashboard --> can_reader
+#   dashboard --> cooling_control
+#
+# The following reverse dependencies shall be avoided:
+#
+#   can_reader       -X-> dashboard
+#   cooling_control  -X-> dashboard
+#   cooling_control  -X-> can_reader
+#
+# This keeps the CAN infrastructure reusable and keeps the
+# cooling-control library independent of CAN transport and
+# application scheduling.
 add_executable(can_reader_demo
     main.cpp
+    DashboardBackend.cpp
+    ControlTask.cpp
     handlers/TempHandler.cpp
 )
 
@@ -72,15 +108,4 @@ target_link_libraries(can_reader_demo
         ${RT_LIB}
 )
 
-# Build a native C++ test executable to verify the C API exported
-# by libcan_reader.so independently of the Python/Qt application.
-add_executable(test_c_api
-    api/test/test_c_api.cpp
-)
-
-target_link_libraries(test_c_api
-    PRIVATE
-        can_reader
-        Threads::Threads
-        ${RT_LIB}
-)
+add_subdirectory(api)

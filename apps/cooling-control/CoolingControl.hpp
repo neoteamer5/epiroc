@@ -157,7 +157,7 @@ private:
     static constexpr double PID_KD = 0.10;
     static constexpr double MIN_PID_OUTPUT = 20.0;
     static constexpr double MAX_FAN_SPEED = 100.0;
-    static constexpr double SAFE_FAN_SPEED = 0.0;
+    static constexpr double SAFE_FAN_SPEED = 100.0;
 
     StateMachine StateMachineObj;
     PIDController Pid;
