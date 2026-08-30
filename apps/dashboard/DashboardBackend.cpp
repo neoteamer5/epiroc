@@ -12,8 +12,7 @@ bool DashboardBackend::Init()
         return true;
     }
 
-    CommCan::Instance().Init(
-        CanMessage::SourceAddress::Dashboard);
+    CommCan::Instance().Init(CanMessage::SourceAddress::Dashboard);
 
     CanReader::Instance().Init(&CommCan::Instance());
 

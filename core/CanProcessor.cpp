@@ -37,7 +37,7 @@ bool CanProcessor::PopCommand(CanCommand & cmd)
         return false;
     }
     static int countCmd = 0;
-    std::cout << "outQueue size=" << outQueue.size() << " count=" << ++countCmd << std::endl;  
+    if (outQueue.size() > 10) std::cout << "outQueue size=" << outQueue.size() << " count=" << ++countCmd << std::endl;  
     std::lock_guard<std::mutex> lock(outMutex);
     cmd = outQueue.front();
     outQueue.pop();
@@ -100,7 +100,7 @@ void CanProcessor::Loop()
 
 
         int inQueueSize = inQueue.size();
-        if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
+        if ( inQueueSize > 10 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
 
         // Single thread consumer can safely and correctly check if queue is empty without lock
         if (inQueue.empty())

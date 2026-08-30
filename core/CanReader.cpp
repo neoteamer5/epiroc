@@ -79,7 +79,7 @@ void CanReader::Loop()
         {
             continue;
         }
-        std::cout << "msg count=" << ++countFrame << std::endl;
+        if (countFrame % 100 == 0) std::cout << "msg count=" << ++countFrame << std::endl;
 
         CanMessage msg;
         msg.pgn = static_cast<CanMessage::PgnType>(src.can_addr.j1939.pgn);
