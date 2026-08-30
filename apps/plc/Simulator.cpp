@@ -98,7 +98,7 @@ bool ReadLinuxCommand(uint8_t &pump_cmd, uint8_t &fan_cmd)
     uint32_t id = rx.can_id & 0x1FFFFFFF;
     uint32_t pgn = (id >> 8) & 0xFFFF;
 
-    if (pgn == CanMessage::PgnType::Fault) 
+    if (pgn == CanMessage::PgnType::Fault || CanMessage::PgnType::Cmd == pgn) 
     {
         pump_cmd = rx.data[0];
         fan_cmd = rx.data[1];

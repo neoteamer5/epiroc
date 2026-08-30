@@ -11,6 +11,7 @@ class CanCommand : public CanMessage
 public:
     CanCommand()
     {
+        pgn = PgnType::Cmd;
         pump = 0;
         fan  = 0;
     }
