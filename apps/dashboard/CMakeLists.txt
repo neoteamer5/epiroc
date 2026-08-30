@@ -55,11 +55,19 @@ target_link_libraries(can_reader
 # directly by a native firmware/application executable.
 add_executable(can_reader_demo
     main.cpp
+    handlers/TempHandler.cpp
+)
+
+target_include_directories(can_reader_demo
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/handlers
 )
 
 target_link_libraries(can_reader_demo
     PRIVATE
         can_reader
+        cooling_control
         Threads::Threads
         ${RT_LIB}
 )

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "CanMessage.hpp"
+#include "MsgHandler.hpp"
 #include "CanCommand.hpp"
 #include "PriorityQueue.hpp"
 
@@ -51,6 +52,13 @@ public:
     ///       Do not register handlers at runtime. Once initialization is complete,
     ///       handler lookups can be performed without locking.
     void RegisterHandler(CanMessage::PgnType pgn, Handler hdlFnc);
+
+    /// @brief Registers an object-based message handler for the specified PGN.
+    /// @param pgn PGN associated with the handler.
+    /// @param msgHandler Message handler object.
+    /// @note The handler must remain valid while CanProcessor is running.
+    ///       Registration must be completed before processing starts.
+    void RegisterHandler(CanMessage::PgnType pgn, MsgHandler& msgHandler);
 
     /// @brief Returns the handler registered for the specified PGN.
     /// @return The registered handler, or nullptr if no handler is registered.

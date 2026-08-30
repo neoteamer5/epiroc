@@ -70,6 +70,17 @@ void CanProcessor::RegisterHandler(CanMessage::PgnType pgn, Handler hdlFnc)
     handlers[pgn] = hdlFnc;
 }
 
+void CanProcessor::RegisterHandler(CanMessage::PgnType pgn, MsgHandler& msgHandler)
+{
+    RegisterHandler(
+        pgn,
+        [&msgHandler](const CanMessage& msg)
+        {
+            msgHandler.handle(msg);
+        }
+    );
+}
+
 CanProcessor::Handler CanProcessor::GetHandler(CanMessage::PgnType pgn)
 {
     auto it = handlers.find(pgn);

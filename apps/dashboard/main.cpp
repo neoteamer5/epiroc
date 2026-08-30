@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "CanMessage.hpp"
+#include "TempHandler.hpp"
 #include "CommCan.hpp"
 #include "CanProcessor.hpp"
 #include "CanReader.hpp"
@@ -91,7 +92,25 @@ void handle_unknown(const CanMessage& msg)
               << std::dec << "\n";
 }
 
-
+/***
+ * core/
+    CAN infrastructure
+    CanProcessor
+    CanReader
+    CanWriter
+    MsgHandler
+              ↑
+              │
+dashboard/    │
+    TempHandler
+    ControlTask
+              │
+              ↓
+cooling-control/
+    CoolingController
+    StateMachine
+    PIDController
+ */
 
 // ============================================================================
 //                                      MAIN
@@ -117,7 +136,9 @@ int main()
 
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Speed, handle_speed);
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Rpm,   handle_rpm);
-    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Temp,  handle_temp);
+    //CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Temp,  handle_temp);
+    TempHandler tempHandler;
+    CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Temp,  tempHandler);
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Fuel,  handle_fuel);
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Fault, handle_fault);
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Lamp,  handle_lamp);
