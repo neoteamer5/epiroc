@@ -87,7 +87,7 @@ TEST(CoolingControllerTest, FaultCommandsSafeOutput)
     controller.Update(75.0, true, false, false, true, DT);
 
     EXPECT_EQ(controller.GetState(), CoolingState::Fault);
-    EXPECT_DOUBLE_EQ(controller.GetFanSpeed(), 0.0);
+    EXPECT_DOUBLE_EQ(controller.GetFanSpeed(), CoolingController::FAULT_FAN_SPEED);
 }
 
 TEST(CoolingControllerTest, NormalTemperatureSequenceMatchesDldExample)
@@ -127,5 +127,5 @@ TEST(CoolingControllerTest, ReInitReturnsControllerToSafeOffState)
     ASSERT_TRUE(controller.Init());
 
     EXPECT_EQ(controller.GetState(), CoolingState::Off);
-    EXPECT_DOUBLE_EQ(controller.GetFanSpeed(), 0.0);
+    EXPECT_DOUBLE_EQ(controller.GetFanSpeed(), CoolingController::OFF_FAN_SPEED);
 }

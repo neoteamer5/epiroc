@@ -191,7 +191,7 @@ CoolingController::CoolingController()
 bool CoolingController::Init()
 {
     Initialized = false;
-    FanSpeed = SAFE_FAN_SPEED;
+    FanSpeed = OFF_FAN_SPEED;
     Pid.Reset();
 
     Thresholds = LoadCalibration();
@@ -214,7 +214,7 @@ void CoolingController::Update(double temperature,
 {
     if (!Initialized)
     {
-        FanSpeed = SAFE_FAN_SPEED;
+        FanSpeed = OFF_FAN_SPEED;
         return;
     }
 
@@ -250,7 +250,7 @@ void CoolingController::Update(double temperature,
             break;
 
         case CoolingState::Fault:
-            FanSpeed = SAFE_FAN_SPEED;
+            FanSpeed = FAULT_FAN_SPEED;
             break;
     }
 }
