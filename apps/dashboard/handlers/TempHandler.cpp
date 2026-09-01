@@ -7,7 +7,7 @@ TempHandler::TempHandler(CoolingInputs& inputs)
 
 bool TempHandler::Init()
 {
-    Inputs.SetSensorValid(false);
+    Inputs.SetSensorValid(true);
 
     return true;
 }

@@ -4,23 +4,23 @@
 
 find_package(GTest REQUIRED)
 
-add_executable(cooling_control_tests
+add_executable(cooling-control-tests
     StateMachineTest.cpp
     PIDControllerTest.cpp
     CoolingControllerTest.cpp
 )
 
-target_link_libraries(cooling_control_tests
+target_link_libraries(cooling-control-tests
     PRIVATE
-        cooling_control
+        cooling-control
         GTest::gtest_main
 )
 
-target_compile_features(cooling_control_tests
+target_compile_features(cooling-control-tests
     PRIVATE
         cxx_std_17
 )
 
 include(GoogleTest)
 
-gtest_discover_tests(cooling_control_tests)
+gtest_discover_tests(cooling-control-tests)

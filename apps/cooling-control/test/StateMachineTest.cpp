@@ -8,7 +8,8 @@ namespace
 {
 CoolingThresholds ValidThresholds()
 {
-    return CoolingThresholds{70.0, 65.0, 85.0, 78.0};
+    //return CoolingThresholds{70.0, 65.0, 85.0, 78.0};
+    return CoolingThresholds{};
 }
 
 void MoveToCooling(StateMachine& stateMachine)

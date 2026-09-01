@@ -4,6 +4,7 @@
 #include "CanReader.hpp"
 #include "CanWriter.hpp"
 #include "CommCan.hpp"
+#include <iostream>
 
 bool DashboardBackend::Init()
 {
@@ -31,6 +32,16 @@ bool DashboardBackend::Init()
     {
         return false;
     }
+
+    CanProcessor::Instance().RegisterHandler(
+        CanMessage::PgnType::Unknown,
+        [](const CanMessage& msg)
+        {
+            std::cout << "Unknown PGN: 0x"
+                    << std::hex
+                    << static_cast<uint32_t>(msg.pgn)
+                    << std::dec << std::endl;
+        });
 
     CanProcessor::Instance().RegisterHandler(CanMessage::PgnType::Temp, Temp);
 

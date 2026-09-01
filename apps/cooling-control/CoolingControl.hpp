@@ -152,10 +152,10 @@ public:
     double GetFanSpeed() const;
     static constexpr double MIN_PID_OUTPUT = 20.0;
     static constexpr double MAX_FAN_SPEED = 100.0;
-    static constexpr double SAFE_FAN_SPEED = 20.0;
+    static constexpr double SAFE_FAN_SPEED = 21.0;
     static constexpr double OFF_FAN_SPEED = 0.0;
     static constexpr double FAULT_FAN_SPEED = 100.0;
-private:
+
     static constexpr double PID_KP = 2.0;
     static constexpr double PID_KI = 0.25;
     static constexpr double PID_KD = 0.10;

@@ -12,6 +12,7 @@ add_executable(plc
 target_link_libraries(plc
     PRIVATE
         can-messages
+        cooling-control
 )
 
 target_compile_features(plc PUBLIC cxx_std_17)

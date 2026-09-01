@@ -68,6 +68,33 @@ void CommCan::SetNonBlock()
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 }
 
+bool CommCan::SendPgn(
+    CanMessage::PgnType pgn,
+    const uint8_t* data)
+{
+    constexpr size_t PAYLOAD_SIZE = 4;
+
+    if (sock < 0 || data == nullptr)
+        return false;
+
+    sockaddr_can dst{};
+    dst.can_family = AF_CAN;
+    dst.can_ifindex =  if_nametoindex("vcan0");;
+    dst.can_addr.j1939.name = J1939_NO_NAME;
+    dst.can_addr.j1939.addr = J1939_NO_ADDR;
+    dst.can_addr.j1939.pgn = static_cast<uint32_t>(pgn);
+
+    const auto ret = sendto(
+        sock,
+        data,
+        PAYLOAD_SIZE,
+        0,
+        reinterpret_cast<sockaddr*>(&dst),
+        sizeof(dst));
+
+    return ret == PAYLOAD_SIZE;
+}
+
 int CommCan::GetSocket() const
 {
     return sock;

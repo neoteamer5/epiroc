@@ -62,7 +62,7 @@ target_link_libraries(can_reader
 #       |        |
 #       |        +----> CAN/J1939 infrastructure
 #       |
-#       +----> cooling_control
+#       +----> cooling-control
 #       |        |
 #       |        +----> CoolingController
 #       |        +----> StateMachine
@@ -76,13 +76,13 @@ target_link_libraries(can_reader
 # The dependency direction shall remain:
 #
 #   dashboard --> can_reader
-#   dashboard --> cooling_control
+#   dashboard --> cooling-control
 #
 # The following reverse dependencies shall be avoided:
 #
 #   can_reader       -X-> dashboard
-#   cooling_control  -X-> dashboard
-#   cooling_control  -X-> can_reader
+#   cooling-control  -X-> dashboard
+#   cooling-control  -X-> can_reader
 #
 # This keeps the CAN infrastructure reusable and keeps the
 # cooling-control library independent of CAN transport and
@@ -103,7 +103,7 @@ target_include_directories(can_reader_demo
 target_link_libraries(can_reader_demo
     PRIVATE
         can_reader
-        cooling_control
+        cooling-control
         Threads::Threads
         ${RT_LIB}
 )

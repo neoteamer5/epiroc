@@ -41,6 +41,8 @@ void ControlTask::Start()
     }
 
     Running = true;
+    CommandSent = false;
+    LastFanSpeed = 0;
     Thread = std::thread(&ControlTask::Run, this);
 }
 

@@ -88,7 +88,7 @@ CanProcessor::Handler CanProcessor::GetHandler(CanMessage::PgnType pgn)
     {
         return it->second;
     }
-    //std::cout << pgn << std::endl;
+    //std::cout << "PgnType unknown:" << pgn << std::endl;
     return handlers[CanMessage::PgnType::Unknown];
 }
 
@@ -100,7 +100,7 @@ void CanProcessor::Loop()
 
 
         int inQueueSize = inQueue.size();
-        if ( inQueueSize > 10 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
+        if ( inQueueSize > 0 ) std::cout << "inQueue size = " << inQueueSize << std::endl;
 
         // Single thread consumer can safely and correctly check if queue is empty without lock
         if (inQueue.empty())

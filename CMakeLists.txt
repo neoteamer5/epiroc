@@ -39,7 +39,7 @@ option(BUILD_CORE "Build central control core" ON)
 #       --output-on-failure
 #
 # Run the Cooling Control GTest executable directly:
-#   ./build/bin/cooling_control_tests
+#   ./build/bin/cooling-control-tests
 # ---------------------------------------------------------------------------
 include(CTest)
 

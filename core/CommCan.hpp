@@ -44,6 +44,15 @@ public:
     // -------------------------------------------------------------------------
     void SetNonBlock();
 
+    /// @brief Sends a J1939 PGN with the specified payload.
+    /// @param pgn PGN to transmit.
+    /// @param data Pointer to the payload data.
+    /// @param len Payload length in bytes.
+    /// @return true if the complete payload was transmitted successfully.
+    bool SendPgn(
+        CanMessage::PgnType pgn,
+        const uint8_t* data);
+
     // -------------------------------------------------------------------------
     // Function: GetSocket
     // Description:

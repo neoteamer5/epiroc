@@ -79,6 +79,14 @@ void CanReader::Loop()
         {
             continue;
         }
+
+        // Ignore messages transmitted by Dashboard itself.
+        if (src.can_addr.j1939.addr ==
+            static_cast<uint8_t>(CanMessage::SourceAddress::Dashboard))
+        {
+            continue;
+        }
+        
         if (countFrame % 100 == 0) std::cout << "msg count=" << ++countFrame << std::endl;
 
         CanMessage msg;

@@ -30,7 +30,7 @@ struct CoolingInputSnapshot
 
     bool CoolingEnabled = true;
     bool ShutdownRequested = false;
-    bool SensorValid = true;
+    bool SensorValid = false;
     bool PumpHealthy = true;
 };
 

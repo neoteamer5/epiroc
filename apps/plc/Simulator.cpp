@@ -11,6 +11,7 @@
 
 #include "CanMessage.hpp"
 #include "CommCan.hpp"
+#include "CoolingControl.hpp"
 
 namespace
 {
@@ -57,10 +58,10 @@ constexpr size_t COMMAND_PAYLOAD_SIZE = 4;
 /// @brief Sensor values transmitted by the simulated PLC.
 struct SensorData
 {
-    int Speed;
-    int Rpm;
-    int Fuel;
-    int Temp;
+    double Speed;
+    double Rpm;
+    double Fuel;
+    double Temp;
 };
 
 /// @brief One deterministic integration-test step.
@@ -79,11 +80,11 @@ struct IntegrationTestStep
 {
     SensorData Data;
 
-    uint16_t ExpectedPump;
-    uint16_t ExpectedFan;
+    double ExpectedPump;
+    double ExpectedFan;
 };
 
-
+constexpr CoolingThresholds coolingThresholds_default;
 /// @brief Deterministic integration-test sequence.
 ///
 /// The temperature sequence deliberately crosses the cooling thresholds and
@@ -107,15 +108,15 @@ struct IntegrationTestStep
 constexpr std::array<IntegrationTestStep, 6> TEST_SEQUENCE
 {{
     // Speed   RPM   Fuel   Temp    Pump   Fan
-    {{20,      800,  90,    60},      0,    0},
-    {{30,     1200,  85,    72},      0,   40},
-    {{40,     1600,  80,    88},      0,   70},
-    {{35,     1400,  75,    80},      0,   70},
-    {{25,     1000,  70,    76},      0,   40},
-    {{20,      900,  65,    63},      0,    0}
+    {{20,      800,  90,    coolingThresholds_default.CoolOff - 5    },      0,   CoolingController::OFF_FAN_SPEED},
+    {{30,     1200,  85,    coolingThresholds_default.CoolOn + 2     },      0,   CoolingController::MIN_PID_OUTPUT},
+    {{40,     1600,  80,    coolingThresholds_default.HighCoolOn + 3 },      0,   CoolingController::MAX_FAN_SPEED},
+    {{35,     1400,  75,    coolingThresholds_default.HighCoolOff + 2},      0,   CoolingController::MAX_FAN_SPEED},
+    {{25,     1000,  70, 76 /*coolingThresholds_default.HighCoolOff - 2*/},  0,   CoolingController::PID_KP * ( 76 - coolingThresholds_default.CoolOff)},
+    {{20,      900,  65,    coolingThresholds_default.CoolOff - 2    },      0,   CoolingController::OFF_FAN_SPEED}
 }};
 
-
+ 
 /// @brief CAN/J1939 socket owned by CommCan.
 int Sock = -1;
 

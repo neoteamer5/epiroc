@@ -56,31 +56,22 @@ void CanWriter::Loop()
     while (running)
     {
         CanCommand cmd;
-        bool ok = CanProcessor::Instance().PopCommand(cmd);
 
-        if (!ok)
+        if (!CanProcessor::Instance().PopCommand(cmd))
         {
             usleep(10000);
             continue;
         }
 
-        // ---------------------------------------------------------------------
-        // Build CAN frame
-        // ---------------------------------------------------------------------
-        struct can_frame frame {};
-        //frame.can_id  = 0x18EF00E5 | CAN_EFF_FLAG;  // EF00 is fault
-        frame.can_id = CanMessage::MakeJ1939CanId(cmd.pgn, CanMessage::SourceAddress::Dashboard);
-        frame.can_dlc = sizeof(cmd.data);
+        uint8_t payload[4]{};
 
-        frame.data[0] = cmd.pump;
-        frame.data[1] = cmd.fan;
+        payload[0] = static_cast<uint8_t>(cmd.pump & 0xFF);
+        payload[1] = static_cast<uint8_t>((cmd.pump >> 8) & 0xFF);
+        payload[2] = static_cast<uint8_t>(cmd.fan & 0xFF);
+        payload[3] = static_cast<uint8_t>((cmd.fan >> 8) & 0xFF);
 
-        // ---------------------------------------------------------------------
-        // Transmit CAN frame
-        // ---------------------------------------------------------------------
-        if (canSock >= 0)
-        {
-            write(canSock, &frame, sizeof(frame));
-        }
+        CommCan::Instance().SendPgn(
+            cmd.pgn,
+            payload);
     }
 }
