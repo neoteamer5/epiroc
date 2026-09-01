@@ -11,7 +11,7 @@ add_executable(plc
 
 target_link_libraries(plc
     PRIVATE
-        can-messages
+        core
         cooling-control
 )
 

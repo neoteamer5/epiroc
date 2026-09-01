@@ -45,7 +45,7 @@ target_include_directories(can_reader
 
 target_link_libraries(can_reader
     PUBLIC
-        can-messages
+        core
         Threads::Threads
         ${RT_LIB}
 )
