@@ -72,6 +72,8 @@ docker exec -it CONTAINER_ID bash
 Go to the project directory and start the application:
 
 ```bash
-cd /epiroc
+cd epiroc
 ./StartPLC.sh
 ```
+
+![alt text](image.png)
