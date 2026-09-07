@@ -12,6 +12,35 @@ sudo apt update
 
 echo "Installing build, CAN, Python, and GoogleTest dependencies..."
 sudo apt install -y \
+    libxcb-shape0 \
+    libxcb-cursor0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libx11-xcb1 \
+    libxrender1 \
+    libxi6 \
+    libxext6
+
+sudo apt install -y \
+    libgl1 \
+    libxkbcommon0 \
+    libegl1 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libxkbcommon-x11-0 \
+    libxcb-cursor0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxcb-xinerama0
+
+sudo apt install -y \
+    iproute2 \
     build-essential \
     cmake \
     git \
@@ -96,9 +125,10 @@ echo "Open a new Linux terminal and run 'StartPLC.sh' when PLC mode is used."
 echo
 
 echo "Select run mode:"
-echo "1) Run with Qt (Python Qt dashboard)"
-echo "2) Run without Qt (core-only CLI mode)"
-read -p "Enter choice [1/2]: " choice
+echo "1) Run with Qt (core + Qt dashboard, GUI mode)"
+echo "2) Run without Qt (core + PID, CLI mode)"
+echo "3) Run both 1) and 2) : core + PID + Qt dashboard"
+read -p "Enter choice [1/2/3]: " choice
 
 case "$choice" in
     1)
@@ -130,6 +160,11 @@ case "$choice" in
     2)
         echo "Starting non-Qt mode..."
         ./build/bin/can_reader_demo
+        ;;
+
+    3)
+        echo "Starting core + PID + Qt dashboard..."
+        ./build/bin/can_reader_demo & source "$HOME/j1939dash/bin/activate" && cd apps/dashboard/qt-app && python3 main.py PLC
         ;;
 
     *)
