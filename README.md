@@ -8,10 +8,7 @@ If you want to run the project inside a Docker container, start the container wi
 docker run -it \
   --cap-add=NET_ADMIN \
   -e DISPLAY=$DISPLAY \
-  -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
-  -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v /mnt/wslg:/mnt/wslg \
   IMAGE_ID \
   bash
 ```
@@ -24,7 +21,20 @@ amd64/gcc:latest
 
 After running the command, you should be inside the container's Bash terminal.
 
-> **Note:** The `/mnt/wslg` mount is intended for WSL2/WSLg. On a native Linux system, it may not be required.
+The container may not have `sudo` installed. Since you are running as `root`, install it with:
+
+```bash
+apt update
+apt install -y sudo
+```
+
+> **Note:** If `sudo` is already installed, you can skip this step.
+
+The Docker options above provide:
+
+- `--cap-add=NET_ADMIN` — allows the container to create and configure the `vcan0` CAN interface.
+- `-e DISPLAY=$DISPLAY` — passes the host X11 display to the container.
+- `-v /tmp/.X11-unix:/tmp/.X11-unix` — allows the Qt dashboard inside the container to connect to the host X11 display.
 
 ### Option 2: Run directly on Linux or WSL2
 
@@ -48,7 +58,7 @@ In the current Linux terminal:
 
 ### Step 2: Start the PLC and Qt Dashboard
 
-Open a **new Linux terminal** and run:
+If you are not using Docker, open a **new Linux terminal** and run:
 
 ```bash
 cd epiroc
