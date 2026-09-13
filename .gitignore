@@ -6,6 +6,7 @@ build/
 
 !.gitignore
 !*.json
+!*.yml
 
 # Allow C++ source files
 !*.cpp
