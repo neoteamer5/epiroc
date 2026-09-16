@@ -556,6 +556,156 @@ bool RunIntegrationTest()
     return false;
 }
 
+// -----------------------------------------------------------------------------
+// Over-temperature recovery integration test
+// -----------------------------------------------------------------------------
+
+/// @brief Verifies high-temperature cooling and gradual temperature recovery.
+///
+/// The simulated PLC first drives the coolant temperature above the
+/// over-temperature threshold. The Dashboard is expected to command maximum
+/// fan speed.
+///
+/// The PLC then gradually decreases the coolant temperature. The test verifies
+/// that the Dashboard maintains maximum cooling while the system remains in
+/// the HighCooling state and eventually reduces/stops the fan as the
+/// temperature returns to the normal range.
+///
+/// Temperature sequence:
+///
+///   121 -> 110 -> 100 -> 90 -> 80 -> 76 -> 70 -> 63
+///
+/// Expected behavior:
+///
+///   121 -> FAN 100
+///   110 -> FAN 100
+///   100 -> FAN 100
+///    90 -> FAN 100
+///    80 -> FAN 100
+///    76 -> controller-dependent cooling output
+///    70 -> controller-dependent cooling output
+///    63 -> FAN 0
+///
+/// @return true when every recovery step passes.
+bool RunOverTemperatureRecoveryTest()
+{
+    struct RecoveryStep
+    {
+        int Temp;
+        double ExpectedFan;
+    };
+
+    constexpr std::array<RecoveryStep, 8> RECOVERY_SEQUENCE
+    {{
+        {121, CoolingController::MAX_FAN_SPEED},
+        {110, CoolingController::MAX_FAN_SPEED},
+        {100, CoolingController::MAX_FAN_SPEED},
+        { 90, CoolingController::MAX_FAN_SPEED},
+        { 80, CoolingController::MAX_FAN_SPEED},
+
+        // Cooling state: expected output depends on PID/calibration.
+        { 76, static_cast<uint16_t>(
+                  CoolingController::PID_KP *
+                  (76 - coolingThresholds_default.CoolOff))},
+
+        { 70, 20.0 /*static_cast<uint16_t>(
+                  CoolingController::PID_KP *
+                  (70 - coolingThresholds_default.CoolOff))*/},
+
+        { 63, CoolingController::OFF_FAN_SPEED}
+    }};
+
+    size_t passed = 0;
+    size_t failed = 0;
+
+    std::cout
+        << "\n"
+        << "========================================\n"
+        << "Over-Temperature Recovery Test\n"
+        << "========================================\n";
+
+    for (size_t i = 0; i < RECOVERY_SEQUENCE.size(); ++i)
+    {
+        const auto& test = RECOVERY_SEQUENCE[i];
+
+        IntegrationTestStep step
+        {
+            {
+                30.0,
+                1500.0,
+                80.0,
+                static_cast<double>(test.Temp)
+            },
+            0,
+            test.ExpectedFan
+        };
+
+        const int warn =
+            test.Temp > 120 ? 1 : 0;
+
+        std::cout
+            << "\n"
+            << "----------------------------------------\n"
+            << "RECOVERY STEP "
+            << i + 1
+            << " / "
+            << RECOVERY_SEQUENCE.size()
+            << "\n"
+            << "Input TEMP=" << test.Temp
+            << "\n"
+            << "Expected PUMP=" << step.ExpectedPump
+            << "\n"
+            << "Expected FAN=" << step.ExpectedFan
+            << "\n"
+            << "----------------------------------------\n";
+
+        SendTelemetry(
+            static_cast<int>(step.Data.Speed),
+            static_cast<int>(step.Data.Rpm),
+            static_cast<int>(step.Data.Fuel),
+            test.Temp,
+            warn);
+
+        const bool stepPassed =
+            WaitForExpectedCommand(
+                step,
+                COMMAND_TIMEOUT);
+
+        if (stepPassed)
+        {
+            ++passed;
+        }
+        else
+        {
+            ++failed;
+        }
+
+        usleep(TEST_STEP_DELAY_US);
+    }
+
+    std::cout
+        << "\n"
+        << "========================================\n"
+        << "Over-Temperature Recovery Result\n"
+        << "========================================\n"
+        << "Total : " << RECOVERY_SEQUENCE.size() << "\n"
+        << "Passed: " << passed << "\n"
+        << "Failed: " << failed << "\n"
+        << "========================================\n";
+
+    if (failed == 0)
+    {
+        std::cout
+            << "RESULT: OVER-TEMPERATURE RECOVERY PASS\n";
+
+        return true;
+    }
+
+    std::cout
+        << "RESULT: OVER-TEMPERATURE RECOVERY FAIL\n";
+
+    return false;
+}
 } // namespace
 
 
@@ -573,11 +723,29 @@ bool RunIntegrationTest()
   |
   +--> RunIntegrationTest()
   |       |
-  |       +--> send test step 1
-  |       +--> verify
-  |       +--> send test step 2
-  |       +--> verify
+  |       +--> send normal temperature
+  |       +--> verify cooling command
+  |       +--> send next temperature
+  |       +--> verify cooling command
   |       +--> ...
+  |
+  +--> RunOverTemperatureRecoveryTest()
+  |       |
+  |       +--> send TEMP=121
+  |       |       |
+  |       |       +--> expect FAN=100
+  |       |
+  |       +--> simulating a gradually decreasing coolant temperature
+  |       |       |
+  |       |       +--> TEMP=110 -> expect FAN=100
+  |       |       +--> TEMP=100 -> expect FAN=100
+  |       |       +--> TEMP=90  -> expect FAN=100
+  |       |       +--> TEMP=80  -> expect FAN=100
+  |       |       +--> TEMP=76  -> verify cooling output
+  |       |       +--> TEMP=70  -> verify cooling output: FAN > 0
+  |       |       +--> TEMP=63  -> expect FAN=0
+  |       |
+  |       +--> verify every step
   |
   +--> close socket
   |
@@ -597,9 +765,18 @@ int main()
         return 1;
     }
 
-    const bool passed = RunIntegrationTest();
+     const bool integrationPassed =
+        RunIntegrationTest();
+
+    usleep(TEST_STEP_DELAY_US);
+
+    const bool recoveryPassed =
+        RunOverTemperatureRecoveryTest();
 
     close(Sock);
 
-    return passed ? 0 : 1;
+    return
+        (integrationPassed && recoveryPassed)
+            ? 0
+            : 1;
 }

@@ -53,6 +53,13 @@ sudo apt install -y \
     python3-venv \
     libgtest-dev
 
+sudo apt install  -y \
+    qt6-base-dev \
+    qt6-base-dev-tools \
+    qt6-declarative-dev \
+    qt6-tools-dev \
+    qmake6
+
 # If required on a native Ubuntu installation:
 # sudo apt install -y linux-modules-extra-$(uname -r)
 
@@ -139,7 +146,7 @@ case "$choice" in
         read -p "Enter choice [1/2]: " datasource
 
         source "$HOME/j1939dash/bin/activate"
-        cd apps/dashboard/qt-app
+        cd apps/dashboard/py-app
 
         case "$datasource" in
             1)
@@ -164,7 +171,7 @@ case "$choice" in
 
     3)
         echo "Starting core + PID + Qt dashboard..."
-        ./build/bin/can_reader_demo & source "$HOME/j1939dash/bin/activate" && cd apps/dashboard/qt-app && python3 main.py PLC
+        ./build/bin/can_reader_demo & source "$HOME/j1939dash/bin/activate" && cd apps/dashboard/py-app && python3 main.py PLC
         ;;
 
     *)

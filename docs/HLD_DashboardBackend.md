@@ -199,7 +199,7 @@ apps/dashboard/
 │   ├── LampHandler.hpp
 │   └── LampHandler.cpp
 ├── api/
-└── qt-app/
+└── py-app/
 ```
 
 Responsibilities:

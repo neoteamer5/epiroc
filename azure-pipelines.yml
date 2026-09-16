@@ -4,54 +4,55 @@
 # Project: CoolingLoopControlSystem
 #
 # Purpose:
-#   - Configure the CMake project
-#   - Build all configured targets
-#   - Run automated tests through CTest
-#   - Publish test results to Azure DevOps
+#   1. Configure the CMake project
+#   2. Build the software
+#   3. Run automated tests
+#   4. Publish test results
+#   5. Publish build output as an Azure Pipeline Artifact
 #
-# Pull requests targeting main are validated through:
+# PR validation:
 #   Repos -> Branches -> main -> Branch policies -> Build validation
-#
-# Note:
-#   Azure Repos PR validation is configured by branch policy, not by a
-#   YAML "pr:" trigger.
 # =============================================================================
 
 name: $(Date:yyyyMMdd).$(Rev:r)
 
 # -----------------------------------------------------------------------------
-# Continuous Integration
+# CI Trigger
 # -----------------------------------------------------------------------------
-# Run CI after changes are merged/pushed to main.
-# PR validation is configured separately through the main branch policy.
+# Run automatically when code is pushed/merged to main.
+#
+# Azure Repos PR validation is configured separately using the
+# Build Validation branch policy.
+# -----------------------------------------------------------------------------
 trigger:
   branches:
     include:
       - main
 
 # -----------------------------------------------------------------------------
-# Agent
+# Microsoft-hosted build agent
 # -----------------------------------------------------------------------------
-# Pin the OS version instead of depending on a future change to ubuntu-latest.
 pool:
   vmImage: ubuntu-24.04
 
 # -----------------------------------------------------------------------------
-# Common variables
+# Pipeline variables
 # -----------------------------------------------------------------------------
 variables:
-  buildDirectory: '$(Build.SourcesDirectory)/build'
   buildType: 'Debug'
+  buildDirectory: '$(Build.SourcesDirectory)/build'
+  artifactDirectory: '$(Build.ArtifactStagingDirectory)/firmware'
 
+# =============================================================================
+# Build and Test Stage
+# =============================================================================
 stages:
 
-# =============================================================================
-# Build and Test
-# =============================================================================
 - stage: BuildAndTest
-  displayName: Build and Test
+  displayName: Build, Test and Publish
 
   jobs:
+
   - job: LinuxBuild
     displayName: Linux C++ Build
 
@@ -68,7 +69,7 @@ stages:
       displayName: Checkout source code
 
     # -------------------------------------------------------------------------
-    # Install dependencies
+    # Install build dependencies
     # -------------------------------------------------------------------------
     - bash: |
         set -euo pipefail
@@ -80,10 +81,11 @@ stages:
           cmake \
           ninja-build \
           libgtest-dev
+
       displayName: Install build dependencies
 
     # -------------------------------------------------------------------------
-    # Show tool versions
+    # Display tool versions
     # -------------------------------------------------------------------------
     - bash: |
         set -euo pipefail
@@ -98,6 +100,7 @@ stages:
         echo
         echo "Ninja:"
         ninja --version
+
       displayName: Display build environment
 
     # -------------------------------------------------------------------------
@@ -112,6 +115,7 @@ stages:
           -G Ninja \
           -DCMAKE_BUILD_TYPE="$(buildType)" \
           -DBUILD_TESTING=ON
+
       displayName: Configure CMake
 
     # -------------------------------------------------------------------------
@@ -123,10 +127,11 @@ stages:
         cmake \
           --build "$(buildDirectory)" \
           --parallel
+
       displayName: Build project
 
     # -------------------------------------------------------------------------
-    # Test
+    # Run tests
     # -------------------------------------------------------------------------
     - bash: |
         set -euo pipefail
@@ -136,13 +141,15 @@ stages:
           --build-config "$(buildType)" \
           --output-on-failure \
           --output-junit "$(buildDirectory)/test-results.xml"
+
       displayName: Run unit tests
 
     # -------------------------------------------------------------------------
-    # Publish test results
+    # Publish unit-test results
     # -------------------------------------------------------------------------
-    # succeededOrFailed() means the test report is uploaded even when a test
-    # fails, so the failure details are visible in the Azure DevOps Tests tab.
+    # This runs even when a test fails so Azure DevOps can display the
+    # failing test details.
+    # -------------------------------------------------------------------------
     - task: PublishTestResults@2
       displayName: Publish test results
       condition: succeededOrFailed()
@@ -153,3 +160,55 @@ stages:
         testRunTitle: 'CoolingLoopControlSystem - Linux'
         failTaskOnFailedTests: true
         failTaskOnMissingResultsFile: true
+
+    # -------------------------------------------------------------------------
+    # Stage build artifacts
+    # -------------------------------------------------------------------------
+    # Copy only files that should be retained after the hosted build agent
+    # is destroyed.
+    #
+    # Adjust the source directory if your CMake binaries are located
+    # somewhere other than build/bin.
+    # -------------------------------------------------------------------------
+    - bash: |
+        set -euo pipefail
+
+        echo "Creating artifact staging directory..."
+        mkdir -p "$(artifactDirectory)"
+
+        echo "Build outputs:"
+        find "$(buildDirectory)" \
+          -type f \
+          \( -name "*.bin" \
+             -o -name "*.hex" \
+             -o -name "*.elf" \) \
+          -print
+
+        echo "Copying firmware files..."
+
+        find "$(buildDirectory)" \
+          -type f \
+          \( -name "*.bin" \
+             -o -name "*.hex" \
+             -o -name "*.elf" \) \
+          -exec cp {} "$(artifactDirectory)/" \;
+
+        echo
+        echo "Artifact contents:"
+        ls -lh "$(artifactDirectory)"
+
+      displayName: Stage firmware artifacts
+
+    # -------------------------------------------------------------------------
+    # Publish artifact to Azure DevOps
+    # -------------------------------------------------------------------------
+    # The artifact is retained by Azure DevOps and associated with this
+    # particular pipeline run.
+    # -------------------------------------------------------------------------
+    - task: PublishPipelineArtifact@1
+      displayName: Publish firmware artifact
+
+      inputs:
+        targetPath: '$(artifactDirectory)'
+        artifact: 'firmware'
+        publishLocation: 'pipeline'
