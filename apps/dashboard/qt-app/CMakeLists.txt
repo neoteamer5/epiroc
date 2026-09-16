@@ -13,8 +13,6 @@ find_package(Qt6 REQUIRED COMPONENTS
 )
 
 qt_standard_project_setup()
-qt_policy(SET QTP0001 NEW)
-qt_policy(SET QTP0004 NEW)
 
 # ---------------------------------------------------------------------------
 # Native C++ / QML Dashboard

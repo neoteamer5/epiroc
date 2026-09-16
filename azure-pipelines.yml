@@ -79,10 +79,15 @@ stages:
           cmake \
           ninja-build \
           pkg-config \
+          libgtest-dev \
+          libxkbcommon-dev \
           qt6-base-dev \
           qt6-declarative-dev \
           qt6-base-dev-tools \
-          qt6-declarative-dev-tools
+          qt6-declarative-dev-tools \
+          qt6-base-private-dev \
+          qt6-declarative-private-dev
+
       displayName: 'Install build dependencies'
 
     # -------------------------------------------------------------------------
@@ -101,6 +106,14 @@ stages:
         echo
         echo "Ninja:"
         ninja --version
+
+        echo
+        echo "Qt:"
+        qmake6 --version
+
+        echo
+        echo "Qt installation:"
+        dpkg -l | grep -E 'qt6-(base|declarative)' || true
 
       displayName: Display build environment
 

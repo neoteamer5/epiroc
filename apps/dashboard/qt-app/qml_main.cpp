@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QUrl>
 
 #include "QtDashboardBackend.hpp"
 
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
         "dashboardBackend",
         &backend);
 
-    engine.loadFromModule("CoolingDashboard", "Main");
+    engine.load(QUrl(QStringLiteral("qrc:/qt/qml/CoolingDashboard/qml/Main.qml")));
 
     if (engine.rootObjects().isEmpty())
         return -1;
