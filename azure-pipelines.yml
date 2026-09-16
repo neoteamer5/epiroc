@@ -79,6 +79,7 @@ stages:
           cmake \
           ninja-build \
           pkg-config \
+
           libgtest-dev \
           libxkbcommon-dev \
           qt6-base-dev \
