@@ -7,6 +7,4 @@ add_executable(test_c_api
 target_link_libraries(test_c_api
     PRIVATE
         can_reader
-        Threads::Threads
-        ${RT_LIB}
 )

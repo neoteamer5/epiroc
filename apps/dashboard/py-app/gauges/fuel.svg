@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="300" viewBox="0 0 300 300"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <circle cx="150" cy="150" r="140" stroke="black" stroke-width="6" fill="#111"/>
+
+  <path d="M 40 150 A 110 110 0 0 1 260 150"
+        stroke="white" stroke-width="6" fill="none"/>
+
+  <g stroke="white" stroke-width="4">
+    <line x1="40" y1="150" x2="70" y2="150"/>
+    <line x1="150" y1="40" x2="150" y2="70"/>
+    <line x1="260" y1="150" x2="230" y2="150"/>
+  </g>
+
+  <g fill="white" font-size="26" font-family="Arial" text-anchor="middle">
+    <text x="70" y="140">E</text>
+    <text x="150" y="90">1/2</text>
+    <text x="230" y="140">F</text>
+  </g>
+
+  <circle cx="150" cy="150" r="10" fill="red"/>
+</svg>

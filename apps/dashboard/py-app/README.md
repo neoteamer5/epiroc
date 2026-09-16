@@ -27,7 +27,7 @@ After activation, the shell should show:
 To test the J1939 C API integration:
 
 ```bash
-python apps/dashboard/qt-app/test_c_api.py
+python apps/dashboard/py-app/test_c_api.py
 ```
 
 ## Run the Qt Dashboard
@@ -35,7 +35,7 @@ python apps/dashboard/qt-app/test_c_api.py
 To start the dashboard application:
 
 ```bash
-cd apps/dashboard/qt-app && python main.py
+cd apps/dashboard/py-app && python main.py
 ```
 
 ## Quick Start
@@ -45,10 +45,10 @@ cd ~/epiroc
 source ~/j1939dash/bin/activate
 
 # Test the C API
-python apps/dashboard/qt-app/test_c_api.py
+python apps/dashboard/py-app/test_c_api.py
 
 # Or start the dashboard
-python apps/dashboard/qt-app/main.py
+python apps/dashboard/py-app/main.py
 ```
 
 Only one of the last two commands is required depending on whether you want to test the C API or run the dashboard.
