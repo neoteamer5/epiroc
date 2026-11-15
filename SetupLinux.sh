@@ -50,6 +50,7 @@ sudo apt install -y \
     can-utils \
     python3 \
     python3-pip \
+    python3-tk \
     python3-venv \
     libgtest-dev
 
@@ -97,7 +98,7 @@ source "$HOME/j1939dash/bin/activate"
 
 echo "Installing PySide6 + CAN/J1939 libraries..."
 pip install --upgrade pip
-pip install PySide6 python-can cantools j1939
+pip install PySide6 python-can cantools j1939  numpy matplotlib scipy
 
 # ---------------------------------------------------------------------------
 # Build C++ project
