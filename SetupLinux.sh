@@ -70,15 +70,17 @@ echo "Creating virtual CAN interface (vcan0)..."
 
 if ! ip link show vcan0 >/dev/null 2>&1; then
     echo "vcan0 not found, creating..."
-    sudo ip link add dev vcan0 type vcan
+    sudo ip link add dev vcan0 type vcan || { echo "Warning: Failed to create vcan0; continuing anyway."; true; }
 else
     echo "vcan0 already exists, skipping creation."
 fi
 
-sudo ip link set up vcan0
+if ip link show vcan0 >/dev/null 2>&1; then
+    sudo ip link set up vcan0
 
-echo "J1939 stack installed and vcan0 ready."
-echo "Test with: j1939cat vcan0"
+    echo "J1939 stack installed and vcan0 ready."
+    echo "Test with: j1939cat vcan0"
+fi
 
 # ---------------------------------------------------------------------------
 # Python environment
@@ -122,6 +124,8 @@ ctest \
 
 echo
 echo "All unit tests passed."
+
+export DISPLAY=host.docker.internal:0
 
 # ---------------------------------------------------------------------------
 # Runtime selection
