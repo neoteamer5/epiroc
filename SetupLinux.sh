@@ -98,7 +98,7 @@ source "$HOME/j1939dash/bin/activate"
 
 echo "Installing PySide6 + CAN/J1939 libraries..."
 pip install --upgrade pip
-pip install PySide6 python-can cantools j1939  numpy matplotlib scipy
+pip install PySide6 python-can cantools j1939  numpy matplotlib scipy opencv-python
 
 # ---------------------------------------------------------------------------
 # Build C++ project
